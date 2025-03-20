@@ -69,7 +69,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     //address[] public _kings;
 
     /// @dev Boolean that says whether a user is or isn't a king 
-    //mapping(address => bool) _enrolledForKing; 
+    mapping(address => bool) _enrolledForKing; 
 
     /// @dev Boolean switch to control the availability of setSubnetStatus
     //bool public _createSubnets;
@@ -78,7 +78,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     //bool public _deleteSubnets;
 
     /// @dev Timestamp of the last king rewards calculated at 
-    //uint40 _lastKingRewardsCalculatedAt;  
+    uint40 _lastKingRewardsCalculatedAt;  
 
     /// @dev Keeps track of how many subnets a user has created 
     //mapping(address => uint16) _totalSubnetsHeld; 
@@ -87,7 +87,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     //bool _createMultipleSubnets;
 
     /// @dev Total earned rewards of the king 
-    //mapping(address => uint96) public _totalKingRewardsEarned;
+    mapping(address => uint96) public _totalKingRewardsEarned;
 
     /// @dev subnet variables ends
 
@@ -101,7 +101,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         /// @todo set king and queen rewards
-        _rewardsPerDay = uint88(rewardsPerDay);
+        _rewardsPerDay = uint88(queenRewardsPerDay);
     }
 
     /// @notice No minimum staking amount 
@@ -187,9 +187,9 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     // }
 
     /// @dev call this function first before accumulateDailyQueenRewards is called
-    /// @todo merge this with accumulate queen rewards 
-    /// @todo stress test this with 100 queens
-    function setCastedVotes(address[] memory queens, uint88[] memory castedVotes) external onlyOwner { 
+    function setCastedVotes(address[] memory queens, uint88[] memory castedVotes) external onlyOwner {
+        /// @todo merge this with accumulate queen rewards 
+        /// @todo stress test this with 100 queens 
         
         if (queens.length != castedVotes.length) revert incorrectArraySize();
 
@@ -272,9 +272,9 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
         emit accumulatedDailyQueenRewards(_lastRewardCalculated);
     }
 
-    /// @todo stress test this with 100 queens
     function setQueenRewards(address[] memory queens, uint88[] memory queenRewards) external onlyOwner 
     {
+        /// @todo stress test this with 100 queens
         if (queens.length != queenRewards.length) revert incorrectArraySize(); 
 
         uint queensLength = queenRewards.length; 
@@ -293,8 +293,8 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     }
 
     /// @dev set the rewards per day for queen's
-    /// @todo rename variables 
     function setRewardsPerDay(uint88 rewardsPerDay) external onlyOwner {
+        /// @todo rename variables 
         _rewardsPerDay = rewardsPerDay;  
     }
 
@@ -311,20 +311,20 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
             _unStake = status;
         }
 
-        /// @dev sets the status of createSubnet(), functionType = 2
-        else if (functionType == 2) {
-            _createSubnets = status;
-        }
+        // /// @dev sets the status of createSubnet(), functionType = 2
+        // else if (functionType == 2) {
+        //     _createSubnets = status;
+        // }
         
-        /// @dev sets the status of deleteSubnet(), functionType = 3
-        else if (functionType == 3) {
-            _deleteSubnets = status;
-        }
+        // /// @dev sets the status of deleteSubnet(), functionType = 3
+        // else if (functionType == 3) {
+        //     _deleteSubnets = status;
+        // }
 
-        /// @dev sets the status of _createMultipleSubnets, functionType = 4
-        else if (functionType == 4) {
-            _createMultipleSubnets = status;
-        }
+        // /// @dev sets the status of _createMultipleSubnets, functionType = 4
+        // else if (functionType == 4) {
+        //     _createMultipleSubnets = status;
+        // }
 
         else {
             revert wrongFunctionType(); 
@@ -352,9 +352,9 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     }
 
     /// @dev kingRewardsPerDay should be in wei
-    /// @todo stress test this with 100 kings
     function accumulateDailyKingRewards(address[] memory kings, uint120[] memory votesReceived,uint88 kingRewardsPerDay) external onlyOwner
     {
+        /// @todo stress test this with 100 kings
         if (kings.length != votesReceived.length) revert incorrectArraySize();
 
         uint96 skippedKings; 
@@ -395,9 +395,9 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
         emit accumulatedDailyKingRewards(skippedKings, _lastKingRewardsCalculatedAt); //TODO: add timestamp : done
     }
 
-    /// @todo stress test this with 100 kings
     function setKingRewards(address[] memory kings, uint88[] memory kingRewards) external onlyOwner 
     {
+        /// @todo stress test this with 100 kings
         if (kings.length != kingRewards.length) revert incorrectArraySize(); 
 
         uint kingLength = kingRewards.length; 
