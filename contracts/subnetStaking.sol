@@ -10,30 +10,30 @@ import "./interfaces/ISubnetStaking.sol";
 contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,IErrors,ISubnetStaking {
 
     /// @dev Timestamp of the last rewards calculated at 
-    uint40 _lastRewardCalculated; 
+    uint40 public _lastQueenRewardsCalculatedAt; 
 
     /// @dev The rewards set aside for the entire queen nodes pool per day 
     /// @dev Can hold up to 100 million rewards in GPoints per day, denominated in wei
-    uint88 public _rewardsPerDay; 
+    uint88 public _queenRewardsPerDay; 
 
     /// @dev Maps the amount staked by a particular queen node 
-    mapping(address => uint88) _stakedAmount;
+    mapping(address => uint88) public _stakedAmount;
 
     /// @dev Total stakes in the staking pool
     /// @dev Can hold upto 10 Billion GPoints in wei 
-    uint96 _totalStakes; 
+    uint96 public _totalStakes; 
 
     /// @dev Pending Queen's rewards 
-    mapping(address => uint96) _pendingQueenRewards;
+    mapping(address => uint96) public _pendingQueenRewards;
 
     /// @dev Total earned rewards of the queen 
-    mapping(address => uint96) _totalRewardsEarned;
+    mapping(address => uint96) public _totalRewardsEarned;
 
     /// @dev List of queens that stakes
-    address[] _queens; 
+    address[] public _queens; 
 
     /// @dev Checkes whether the user has already enrolled for the queen rewards
-    mapping(address => bool) _enrolledForQueen;
+    mapping(address => bool) public _enrolledForQueen;
 
     /// @dev Boolean switch to control the availability of stake() 
     bool public _stake;
@@ -48,48 +48,17 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     bool public _accumulate; 
 
     /// @dev Mapping that stores the rewards claimed by a user so far
-    mapping(address => uint96) _totalRewardsclaimed; 
+    mapping(address => uint96) public _totalRewardsclaimed; 
 
     mapping(address => uint88) public _unUsedStakes; 
 
     mapping(address => uint88) public _castedVotes;
 
-    /// @dev subnet variables start 
-
-    /// @dev Hold the unique ID of a subnet 
-    //uint88 public _subnetId; 
-
-    /// @dev subnetID which is either alive or dead
-    //mapping(uint88 => bool) public _subnetStatus; 
-
-    /// @dev The owner of the subnet can be fetched using this
-    //mapping(uint88 => address) public _subnetKing; 
-
-    /// @dev All the kings 
-    //address[] public _kings;
-
-    /// @dev Boolean that says whether a user is or isn't a king 
-    mapping(address => bool) _enrolledForKing; 
-
-    /// @dev Boolean switch to control the availability of setSubnetStatus
-    //bool public _createSubnets;
-
-    // @dev Boolean switch to control the availability of deleteSubnet
-    //bool public _deleteSubnets;
-
     /// @dev Timestamp of the last king rewards calculated at 
-    uint40 _lastKingRewardsCalculatedAt;  
-
-    /// @dev Keeps track of how many subnets a user has created 
-    //mapping(address => uint16) _totalSubnetsHeld; 
-
-    /// @dev Boolean switch to be checked if a user creates multiple subnets 
-    //bool _createMultipleSubnets;
+    uint40 public _lastKingRewardsCalculatedAt;  
 
     /// @dev Total earned rewards of the king 
     mapping(address => uint96) public _totalKingRewardsEarned;
-
-    /// @dev subnet variables ends
 
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -101,7 +70,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         /// @todo set king and queen rewards
-        _rewardsPerDay = uint88(queenRewardsPerDay);
+        _queenRewardsPerDay = uint88(queenRewardsPerDay);
     }
 
     /// @notice No minimum staking amount 
@@ -131,60 +100,6 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
         if (!success) revert TransferFailed(); 
         emit unStaked(msg.sender, amount);
     }
-
-    // function createSubnet() external 
-    // {
-    //     if (!_createSubnets) revert createSubnetsNotYetAvailable();
-    //     if (_totalSubnetsHeld[msg.sender] > 0)
-    //     {
-    //         if (!_createMultipleSubnets) revert cannotCreateMultipleSubnets();
-    //         _subnetId++;
-    //         _subnetStatus[_subnetId] = true; 
-    //         _subnetKing[_subnetId] = msg.sender; 
-    //         _totalSubnetsHeld[msg.sender]++; 
-    //         if (!_enrolledForKing[msg.sender])
-    //         {
-    //             _kings.push(msg.sender); 
-    //             _enrolledForKing[msg.sender] =  true; 
-    //         } 
-    //         emit createdSubnet(_subnetId, msg.sender);
-    //     }
-    //     else 
-    //     {
-    //         _subnetId++;
-    //         _subnetStatus[_subnetId] = true; 
-    //         _subnetKing[_subnetId] = msg.sender; 
-    //         _totalSubnetsHeld[msg.sender]++;
-    //         if (!_enrolledForKing[msg.sender])
-    //         {
-    //             _kings.push(msg.sender); 
-    //             _enrolledForKing[msg.sender] =  true; 
-    //         } 
-    //         emit createdSubnet(_subnetId, msg.sender);
-    //     }
-        
-    // }
-
-    // function deleteSubnet(uint88 subnetId) external 
-    // {
-    //     if (!_deleteSubnets) revert deleteSubnetsNotYetAvailable();
-    //     if (!_subnetStatus[subnetId]) revert subnetDeletedOrDoesntExist();
-    //     if (_subnetKing[subnetId] != msg.sender) revert unauthorizedKing(); 
-    //     _subnetStatus[subnetId] = false;
-    //     emit deletedSubnet(subnetId, msg.sender);
-    // }
-
-    // /// @dev call this function right after upgrading the queen contract 
-    // function transferPendingQueenRewardsToStaked() external onlyOwner
-    // {
-    //     address[] memory queens = _queens; 
-    //     uint24 totalQueens = uint24(queens.length); 
-    //     for (uint i = 0; i < totalQueens; i++) 
-    //     {
-    //         _stakedAmount[queens[i]] += uint88(_pendingQueenRewards[queens[i]]);
-    //         _pendingQueenRewards[queens[i]] = 0; 
-    //     }
-    // }
 
     /// @dev call this function first before accumulateDailyQueenRewards is called
     function setCastedVotes(address[] memory queens, uint88[] memory castedVotes) external onlyOwner {
@@ -255,10 +170,10 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
         /// @dev Calculates the queen rewards 
         /// @dev (ss/∑ss) * Rewards per day
         if (totalStakeScore > 0) {
-            uint256 rewardsPerDay = _rewardsPerDay;
+            uint256 rewardsPerDay = _queenRewardsPerDay;
             uint96 newRewards; 
             for (uint i = 0; i < totalQueens; i++) {
-                /// @dev queen rewards = (ss * _rewardsPerDay) / ∑SS
+                /// @dev queen rewards = (ss * _queenRewardsPerDay) / ∑SS
                 newRewards = uint96((stakeScores[i] * rewardsPerDay) / (totalStakeScore));
                 // _pendingQueenRewards[queens[i]] +=  newRewards; 
                 _totalRewardsEarned[queens[i]] += newRewards; 
@@ -267,9 +182,9 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
                 _unUsedStakes[queens[i]] += uint88(newRewards); 
             } 
         }
-        _lastRewardCalculated = uint40(block.timestamp); 
+        _lastQueenRewardsCalculatedAt = uint40(block.timestamp); 
         _accumulate = false; 
-        emit accumulatedDailyQueenRewards(_lastRewardCalculated);
+        emit accumulatedDailyQueenRewards(_lastQueenRewardsCalculatedAt);
     }
 
     function setQueenRewards(address[] memory queens, uint88[] memory queenRewards) external onlyOwner 
@@ -287,15 +202,15 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
             _unUsedStakes[queens[i]] += queenRewards[i]; 
         }
 
-        _lastRewardCalculated = uint40(block.timestamp); 
+        _lastQueenRewardsCalculatedAt = uint40(block.timestamp); 
 
-        emit setQueenReward(_lastRewardCalculated);
+        emit setQueenReward(_lastQueenRewardsCalculatedAt);
     }
 
     /// @dev set the rewards per day for queen's
     function setRewardsPerDay(uint88 rewardsPerDay) external onlyOwner {
         /// @todo rename variables 
-        _rewardsPerDay = rewardsPerDay;  
+        _queenRewardsPerDay = rewardsPerDay;  
     }
 
     /// @dev Set the status of the functions that users interact with. 
@@ -356,21 +271,12 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     {
         /// @todo stress test this with 100 kings
         if (kings.length != votesReceived.length) revert incorrectArraySize();
-
-        uint96 skippedKings; 
         uint kingsLength = kings.length;
         uint totalVotes; 
 
         for(uint i=0; i < kingsLength; i++)
         {
-            if (_enrolledForKing[kings[i]])
-            {
-                totalVotes += votesReceived[i]; 
-            }
-            else 
-            {
-                skippedKings++; 
-            }
+            totalVotes += votesReceived[i]; 
         }
 
         if (totalVotes > 0)
@@ -380,19 +286,16 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
 
             for(uint i=0; i < kingsLength; i++)
             {
-                if (_enrolledForKing[kings[i]])
-                {
-                     kingRewards = uint96((votesReceived[i] * kingRewardsPerDay) / (totalVotes));
-                     _totalKingRewardsEarned[kings[i]] += kingRewards; 
-                    _totalStakes += kingRewards; 
-                    _stakedAmount[kings[i]] += uint88(kingRewards); 
-                    _unUsedStakes[kings[i]] += uint88(kingRewards); 
-                }
+                kingRewards = uint96((votesReceived[i] * kingRewardsPerDay) / (totalVotes));
+                _totalKingRewardsEarned[kings[i]] += kingRewards; 
+                _totalStakes += kingRewards; 
+                _stakedAmount[kings[i]] += uint88(kingRewards); 
+                _unUsedStakes[kings[i]] += uint88(kingRewards); 
             }
         }
         _lastKingRewardsCalculatedAt = uint40(block.timestamp);
 
-        emit accumulatedDailyKingRewards(skippedKings, _lastKingRewardsCalculatedAt); //TODO: add timestamp : done
+        emit accumulatedDailyKingRewards(_lastKingRewardsCalculatedAt); 
     }
 
     function setKingRewards(address[] memory kings, uint88[] memory kingRewards) external onlyOwner 
@@ -415,53 +318,5 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
 
         emit setKingReward(_lastKingRewardsCalculatedAt);
     }
-
-    /// @notice Getter functions
-    
-    /// todo make this variable public 
-    function getLastRewardCalculated() external view onlyOwner returns(uint40) {
-        return _lastRewardCalculated;
-    }
-
-    /// todo make this variable public
-    function getStakedAmount(address queen) external view onlyOwner returns(uint88) {
-        return _stakedAmount[queen]; 
-    } 
-
-    /// todo make this variable public
-    function getMyStakedAmount() external view returns(uint88) {
-        return _stakedAmount[msg.sender]; 
-    }
-
-    /// todo make this variable public
-    function getTotalStakes() external view onlyOwner returns(uint96) {
-        return _totalStakes;
-    }
-
-    /// todo make this variable public
-    function getQueenRewards(address queen) external view onlyOwner returns(uint96) {
-        return _pendingQueenRewards[queen]; 
-    } 
-
-    /// todo make this variable public
-    function getMyPendingRewards() external view returns(uint96) {
-        return _pendingQueenRewards[msg.sender]; 
-    }
-
-    /// todo make this variable public
-    function getMyTotalRewardsEarned() external view returns(uint96) {
-        return _totalRewardsEarned[msg.sender]; 
-    }
-
-    /// todo make this variable public
-    function getAllQueens() external view returns(address[] memory) {
-        return _queens; 
-    }
-
-    /// todo make this variable public
-    function getTotalRewards(address queen) external view onlyOwner returns(uint96) {
-        return _totalRewardsEarned[queen]; 
-    }
-
     // todo: reqrite tests accordingly and add more owner callable functions to set things directly 
 }

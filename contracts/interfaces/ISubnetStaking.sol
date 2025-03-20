@@ -38,7 +38,6 @@ interface ISubnetStaking {
     );
 
     event accumulatedDailyKingRewards(
-        uint96 skippedKings, 
         uint40 lastKingRewardsCalculatedAt 
     );
 
