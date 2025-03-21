@@ -15,7 +15,7 @@ interface ISubnetStaking {
     );
     event unStaked(
         address queen, 
-        uint88 amount
+        uint120 amount
     );
     event validatorEnrolled(
         address validator 
@@ -50,5 +50,5 @@ interface ISubnetStaking {
     );
     function stake() external payable;
     // function accumulateDailyQueenRewards() external;
-    function unStake(uint88 amount) external; 
+    function unStake(uint120 amount) external; 
 }

@@ -9,25 +9,25 @@ import "./interfaces/ISubnetStaking.sol";
 
 contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,IErrors,ISubnetStaking {
 
-    /// @dev Timestamp of the last rewards calculated at 
+    /// @dev Timestamp of the last queen rewards calculated at 
     uint40 public _lastQueenRewardsCalculatedAt; 
 
     /// @dev The rewards set aside for the entire queen nodes pool per day 
     /// @dev Can hold up to 100 million rewards in GPoints per day, denominated in wei
-    uint88 public _queenRewardsPerDay; 
+    uint120 public _queenRewardsPerDay; 
 
     /// @dev Maps the amount staked by a particular queen node 
-    mapping(address => uint88) public _stakedAmount;
+    mapping(address => uint120) public _stakedAmount;
 
     /// @dev Total stakes in the staking pool
     /// @dev Can hold upto 10 Billion GPoints in wei 
-    uint96 public _totalStakes; 
+    uint120 public _totalStakes; 
 
     /// @dev Pending Queen's rewards 
-    mapping(address => uint96) public _pendingQueenRewards;
+    mapping(address => uint120) public _pendingQueenRewards;
 
     /// @dev Total earned rewards of the queen 
-    mapping(address => uint96) public _totalRewardsEarned;
+    mapping(address => uint120) public _totalRewardsEarned;
 
     /// @dev List of queens that stakes
     address[] public _queens; 
@@ -48,17 +48,19 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     bool public _accumulate; 
 
     /// @dev Mapping that stores the rewards claimed by a user so far
-    mapping(address => uint96) public _totalRewardsclaimed; 
+    mapping(address => uint120) public _totalRewardsclaimed; 
 
-    mapping(address => uint88) public _unUsedStakes; 
+    mapping(address => uint120) public _unUsedStakes; 
 
-    mapping(address => uint88) public _castedVotes;
+    mapping(address => uint120) public _castedVotes;
+
+    uint120 _kingRewardsPerDay; 
 
     /// @dev Timestamp of the last king rewards calculated at 
     uint40 public _lastKingRewardsCalculatedAt;  
 
     /// @dev Total earned rewards of the king 
-    mapping(address => uint96) public _totalKingRewardsEarned;
+    mapping(address => uint120) public _totalKingRewardsEarned;
 
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -70,7 +72,8 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         /// @todo set king and queen rewards
-        _queenRewardsPerDay = uint88(queenRewardsPerDay);
+        _queenRewardsPerDay = uint120(queenRewardsPerDay);
+        _kingRewardsPerDay = uint120(kingRewardsPerDay);
     }
 
     /// @notice No minimum staking amount 
@@ -78,7 +81,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     function stake() external  payable {
         if (!_stake) revert stakeNotYetAvailable(); 
         _totalStakes += uint96(msg.value); 
-        _stakedAmount[msg.sender] += uint88(msg.value); 
+        _stakedAmount[msg.sender] += uint120(msg.value); 
         _unUsedStakes[msg.sender] += uint88(msg.value); 
         if(!_enrolledForQueen[msg.sender]) {
             _queens.push(msg.sender);
@@ -89,7 +92,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
 
     /// @notice No rewards for staking below 1000 GPoints
     /// @dev Allows the queens to unstake 
-    function unStake(uint88 amount) public {
+    function unStake(uint120 amount) public {
         if (!_unStake) revert unStakeNotYetAvailable();
         if (amount == 0) revert ZeroUnstakeAmount();
         if (_unUsedStakes[msg.sender] < amount) revert ExceedsStakedAmount();
@@ -135,9 +138,9 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
 
         address[] memory queens = _queens; 
         uint24 totalQueens = uint24(queens.length); 
-        uint96[] memory stakeScores = new uint96[](totalQueens); 
-        uint96 stakeMultiplier;  
-        uint96 totalStakeScore;
+        uint120[] memory stakeScores = new uint120[](totalQueens); 
+        uint120 stakeMultiplier;  
+        uint120 totalStakeScore;
 
         /// @dev Calculates the SS = su * sm 
         for (uint i = 0; i < totalQueens; i++) {
@@ -208,9 +211,12 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     }
 
     /// @dev set the rewards per day for queen's
-    function setRewardsPerDay(uint88 rewardsPerDay) external onlyOwner {
-        /// @todo rename variables 
-        _queenRewardsPerDay = rewardsPerDay;  
+    function setQueenRewardsPerDay(uint120 queenRewardsPerDay) external onlyOwner {
+        _queenRewardsPerDay = queenRewardsPerDay;  
+    }
+
+    function setKingRewardsPerDay(uint120 kingRewardsPerDay) external onlyOwner {
+        _kingRewardsPerDay = kingRewardsPerDay;  
     }
 
     /// @dev Set the status of the functions that users interact with. 
@@ -252,7 +258,7 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     }
 
     function authorizedUnstake(address queen) external onlyOwner {
-        uint96 stakedAmount = _stakedAmount[msg.sender]; 
+        uint120 stakedAmount = _stakedAmount[msg.sender]; 
 
         //_pendingQueenRewards[msg.sender] = 0;
         //_totalRewardsclaimed[msg.sender] += rewards;
