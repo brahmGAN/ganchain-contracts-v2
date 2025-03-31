@@ -12,15 +12,19 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     /// @dev Timestamp of the last queen rewards calculated at 
     uint40 public _lastQueenRewardsCalculatedAt; 
 
+    /// @dev Timestamp of the last king rewards calculated at 
+    uint40 public _lastKingRewardsCalculatedAt; 
+
     /// @dev The rewards set aside for the entire queen nodes pool per day 
-    /// @dev Can hold up to 100 million rewards in GPoints per day, denominated in wei
     uint120 public _queenRewardsPerDay; 
 
-    /// @dev Maps the amount staked by a particular queen node 
+    /// @dev The rewards set aside for the entire king nodes pool per day 
+    uint120 _kingRewardsPerDay;  
+
+    /// @dev Maps the amount staked by a particular queen 
     mapping(address => uint120) public _stakedAmount;
 
     /// @dev Total stakes in the staking pool
-    /// @dev Can hold upto 10 Billion GPoints in wei 
     uint120 public _totalStakes; 
 
     /// @dev Pending Queen's rewards 
@@ -53,11 +57,6 @@ contract SubnetStaking is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUp
     mapping(address => uint120) public _unUsedStakes; 
 
     mapping(address => uint120) public _castedVotes;
-
-    uint120 _kingRewardsPerDay; 
-
-    /// @dev Timestamp of the last king rewards calculated at 
-    uint40 public _lastKingRewardsCalculatedAt;  
 
     /// @dev Total earned rewards of the king 
     mapping(address => uint120) public _totalKingRewardsEarned;
