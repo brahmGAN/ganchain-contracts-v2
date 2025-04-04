@@ -94,4 +94,14 @@ interface IErrors {
     * @dev Displayed when the users can't create multiple subnets 
    */
   error cannotCreateMultipleSubnets();
+
+  /**
+    * @dev Displayed when the users can't create multiple subnets 
+   */
+  error insufficientBalanceToCastVotes();  
+
+  /**
+    * @dev Displayed when the users can't create multiple subnets 
+   */
+  error insufficientBalanceToRemoveVotes();  
 }
