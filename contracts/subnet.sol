@@ -9,25 +9,43 @@ import "./interfaces/ISubnet.sol";
 
 contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,IErrors,ISubnet 
 {
-    mapping(uint120 => uint120) _subnetVotes; 
 
-    address[] _queens; 
+    //todo add locks for all user callable function 
 
-    mapping(address => uint120) _maxVotes; 
+    mapping(uint120 => uint120) public _subnetVotes; 
 
-    mapping(address => uint120) _userTotalVotes; 
+    address[] public _queens; 
 
-    mapping(address => mapping(uint120 => uint120)) _userVotesToSubnet;
+    mapping(address => uint120) public _maxVotes; 
+
+    mapping(address => uint120) public _userTotalVotes; 
+
+    mapping(address => mapping(uint120 => uint120)) public _userVotesToSubnet;
+
+    address public _updater; 
+
+    mapping(address => uint120) public _pendingRewards; 
+
+    mapping(address => uint120) public _totalRewardsClaimed; 
+
+    uint120 public _totalRewardsClaimedByAll; 
+
+    modifier onlyUpdater 
+    {
+        require(msg.sender == _updater);
+        _; 
+    }
  
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     /// @dev Initializes the contract with GPU contract address and rewards per day for the queen nodes pool.
     /// @dev `rewardsPerDay` should be passed in wei and not as GPoints 
-    function initialize() public initializer {
+    function initialize(address updater) public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
+        _updater = updater; 
     }
 
     // function createSubnet() external 
@@ -72,10 +90,14 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     //     emit deletedSubnet(subnetId, msg.sender);
     // }
 
-    // function claimRewards(uint120 rewards) external
-    // {
-    //     //todo 
-    // } 
+    function claimRewards(uint120 rewards) external
+    {
+        //todo 
+        if(rewards > _pendingRewards[msg.sender]) revert exceedesPendingRewards();
+        _pendingRewards[msg.sender] -= rewards; 
+        _totalRewardsClaimed[msg.sender] += rewards;
+        _totalRewardsClaimedByAll += rewards; 
+    } 
 
     function castVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
     {
@@ -186,7 +208,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     //     }
     // }
 
-    function setBatchSubnetsVotes(uint120[] calldata subnetId, uint120[] calldata votes) external onlyOwner
+    function setBatchSubnetsVotes(uint120[] calldata subnetId, uint120[] calldata votes) external onlyUpdater
     { 
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
@@ -194,15 +216,17 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         {
             _subnetVotes[subnetId[i]] = votes[i]; 
         }
+        //todo emit timestamp
     }
 
-    function setSubnetsVotes(uint120 subnetId, uint120 votes) external onlyOwner
+    function setSubnetsVotes(uint120 subnetId, uint120 votes) external onlyUpdater
     {
         _subnetVotes[subnetId] = votes; 
+        //todo emit timestamp
     }
 
 
-    function setBatchUserMaxVotes(address[] calldata queens,uint120[] calldata maxVotes) external onlyOwner
+    function setBatchUserMaxVotes(address[] calldata queens,uint120[] calldata maxVotes) external onlyUpdater
     {
         if (queens.length != maxVotes.length) revert incorrectArraySize(); 
         uint queensLength = queens.length; 
@@ -210,10 +234,12 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         {
             _maxVotes[queens[i]] = maxVotes[i];
         }
+        //todo emit timestamp
     }
 
-    function setUserMaxVotes(address queen,uint120 maxVotes) external onlyOwner
+    function setUserMaxVotes(address queen,uint120 maxVotes) external onlyUpdater
     {
         _maxVotes[queen] = maxVotes; 
+        //todo emit timestamp
     }
 }

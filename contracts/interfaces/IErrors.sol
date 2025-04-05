@@ -104,4 +104,9 @@ interface IErrors {
     * @dev Displayed when the users can't create multiple subnets 
    */
   error insufficientBalanceToRemoveVotes();  
+
+  /**
+    * @dev Displayed when the users can't create multiple subnets 
+   */
+  error exceedesPendingRewards();  
 }
