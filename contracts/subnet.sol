@@ -79,27 +79,33 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     function castVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
     {
+        if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
-        if(totalVotes < _maxVotes[msg.sender]) revert insufficientBalanceToCastVotes();
+        if(_maxVotes[msg.sender] >= (totalVotes + _userTotalVotes[msg.sender])) revert insufficientBalanceToCastVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
             _subnetVotes[subnetId[i]] += votes[i]; 
             _userVotesToSubnet[msg.sender][subnetId[i]] += votes[i];
         }
         _userTotalVotes[msg.sender] += totalVotes; 
+        _maxVotes[msg.sender] -= totalVotes; 
         _queens.push(msg.sender); 
+        //todo emit event
     }
 
     function unCastVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
     {
+        if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
-        if(totalVotes < _userTotalVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
+        if(totalVotes <= _userTotalVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
             _subnetVotes[subnetId[i]] -= votes[i]; 
             _userVotesToSubnet[msg.sender][subnetId[i]] -= votes[i];
         }
-        _userTotalVotes[msg.sender] += totalVotes; 
+        _userTotalVotes[msg.sender] -= totalVotes; 
+        _maxVotes[msg.sender] += totalVotes; 
+        //todo emit event
     }
 
     // function setQueenRewards(address[] calldata queens, uint88[] calldata queenRewards) external onlyOwner 
@@ -180,24 +186,34 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     //     }
     // }
 
-    function setBatchSubnetsVotes(uint120[] calldata subnetId, uint120[] calldata votes) external
+    function setBatchSubnetsVotes(uint120[] calldata subnetId, uint120[] calldata votes) external onlyOwner
     { 
-
+        if(subnetId.length != votes.length) revert incorrectArraySize();
+        uint totalSubnets = subnetId.length; 
+        for(uint i=0; i < totalSubnets; i++)
+        {
+            _subnetVotes[subnetId[i]] = votes[i]; 
+        }
     }
 
-    function setSubnetsVotes(uint120 subnetId, uint120 votes) external
+    function setSubnetsVotes(uint120 subnetId, uint120 votes) external onlyOwner
     {
-
+        _subnetVotes[subnetId] = votes; 
     }
 
 
-    function setBatchUserMaxVotes(address[] calldata queens,uint120[] calldata maxVotes) external 
+    function setBatchUserMaxVotes(address[] calldata queens,uint120[] calldata maxVotes) external onlyOwner
     {
-
+        if (queens.length != maxVotes.length) revert incorrectArraySize(); 
+        uint queensLength = queens.length; 
+        for(uint i=0; i < queensLength; i++)
+        {
+            _maxVotes[queens[i]] = maxVotes[i];
+        }
     }
 
-    function setUserMaxVotes(address queens,uint120 maxVotes) external 
+    function setUserMaxVotes(address queen,uint120 maxVotes) external onlyOwner
     {
-
+        _maxVotes[queen] = maxVotes; 
     }
 }
