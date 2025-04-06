@@ -174,25 +174,21 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         //emit setQueenReward(_lastRewardCalculated);
     }
 
-    // function setKingRewards(address[] calldata kings, uint88[] calldata kingRewards) external onlyOwner 
-    // {
-    //     //todo keep track of king rewards individually and totally earned by all so far but use the same pool for rewards claiming whether one is a queen or a king
-    //     if (kings.length != kingRewards.length) revert incorrectArraySize(); 
+    function setKingRewards(address[] calldata kings, uint88[] calldata kingRewards) external onlyOwner 
+    {
+        if (kings.length != kingRewards.length) revert incorrectArraySize(); 
 
-    //     uint kingLength = kingRewards.length; 
+        uint kingLength = kingRewards.length; 
 
-    //     for (uint i=0; i < kingLength; i++)
-    //     {
-    //         _totalRewardsEarned[kings[i]] += kingRewards[i]; 
-    //         _totalStakes += kingRewards[i]; 
-    //         _stakedAmount[kings[i]] += kingRewards[i]; 
-    //         _unUsedStakes[kings[i]] += kingRewards[i]; 
-    //     }
+        for (uint i=0; i < kingLength; i++)
+        {
+            _totalRewardsEarned[kings[i]] += kingRewards[i]; 
+            _pendingRewards[kings[i]] += kingRewards[i]; 
+        }
 
-    //     _lastKingRewardsCalculatedAt = uint40(block.timestamp);
-
-    //     emit setKingReward(_lastKingRewardsCalculatedAt);
-    // }
+        //todo emit event    
+        //emit setKingReward(_lastKingRewardsCalculatedAt);
+    }
 
     // /// @dev Set the status of the functions that users interact with. 
     // function setUserFunctionStatus(bool status, uint8 functionType) external onlyOwner {
