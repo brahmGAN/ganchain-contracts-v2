@@ -9,9 +9,6 @@ import "./interfaces/ISubnet.sol";
 
 contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,IErrors,ISubnet 
 {
-
-    //todo add locks for all user callable function 
-
     mapping(uint120 => uint120) public _subnetVotes; 
 
     address[] public _queens; 
@@ -49,6 +46,12 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     bool public _createMultipleSubnets;
 
     mapping(address => uint120) _totalRewardsEarned;
+
+    bool public _claimRewards;
+
+    bool public _castVotes;
+
+    bool public _unCastVotes;
 
     modifier onlyUpdater 
     {
@@ -115,6 +118,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     function claimRewards(uint120 rewards) external
     {
+        if (!_claimRewards) revert claimRewardsNotYetAvailable();
         if(rewards > _pendingRewards[msg.sender]) revert exceedesPendingRewards();
         if((address(this).balance) < rewards) revert inSufficientBalanceInContract();
         _pendingRewards[msg.sender] -= rewards; 
@@ -126,6 +130,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     function castVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
     {
+        if (!_castVotes) revert castVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
         if(_maxVotes[msg.sender] >= (totalVotes + _userTotalVotes[msg.sender])) revert insufficientBalanceToCastVotes();
@@ -145,6 +150,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     function unCastVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
     {
+        if (!_unCastVotes) revert unCastVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
         if(totalVotes <= _userTotalVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
@@ -190,40 +196,43 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         //emit setKingReward(_lastKingRewardsCalculatedAt);
     }
 
-    // /// @dev Set the status of the functions that users interact with. 
-    // function setUserFunctionStatus(bool status, uint8 functionType) external onlyOwner {
-
-           //todo  
-
-    //     /// @dev sets the status of stake(), functionType = 0
-    //     if (functionType == 0) {
-    //         _stake = status; 
-    //     }
-
-    //     /// @dev sets the status of unStake(), functionType = 1
-    //     else if (functionType == 1) {
-    //         _unStake = status;
-    //     }
-
-    //     /// @dev sets the status of createSubnet(), functionType = 2
-    //     else if (functionType == 2) {
-    //         _createSubnets = status;
-    //     }
+    /// @dev Set the status of the functions that users interact with. 
+    function setUserFunctionStatus(bool status, uint8 functionType) external onlyOwner 
+    {
+        /// @dev sets the status of createSubnet(), functionType = 0
+        if (functionType == 0) {
+            _createSubnets = status;
+        }
         
-    //     /// @dev sets the status of deleteSubnet(), functionType = 3
-    //     else if (functionType == 3) {
-    //         _deleteSubnets = status;
-    //     }
+        /// @dev sets the status of deleteSubnet(), functionType = 1
+        else if (functionType == 1) {
+            _deleteSubnets = status;
+        }
 
-    //     /// @dev sets the status of _createMultipleSubnets, functionType = 4
-    //     else if (functionType == 4) {
-    //         _createMultipleSubnets = status;
-    //     }
+        /// @dev sets the status of _createMultipleSubnets, functionType = 2
+        else if (functionType == 2) {
+            _createMultipleSubnets = status;
+        }
 
-    //     else {
-    //         revert wrongFunctionType(); 
-    //     }
-    // }
+        /// @dev sets the status of _createMultipleSubnets, functionType = 3
+        else if (functionType == 3) {
+            _claimRewards = status;
+        }
+
+        /// @dev sets the status of _createMultipleSubnets, functionType = 4
+        else if (functionType == 4) {
+            _castVotes = status;
+        }
+
+        /// @dev sets the status of _createMultipleSubnets, functionType = 5
+        else if (functionType == 5) {
+            _unCastVotes = status;
+        }
+
+        else {
+            revert wrongFunctionType(); 
+        }
+    }
 
     function authorizedRewardSender(address[] calldata users, uint120[] calldata rewards) external onlyOwner 
     {

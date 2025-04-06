@@ -114,4 +114,19 @@ interface IErrors {
     * @dev Displayed when the users can't create multiple subnets 
    */
   error inSufficientBalanceInContract();  
+
+  /**
+    * @dev Displayed when deleteSubnet() isn't yet available for users
+   */
+  error claimRewardsNotYetAvailable();  
+
+  /**
+    * @dev Displayed when deleteSubnet() isn't yet available for users
+   */
+  error castVotesNotYetAvailable();  
+
+  /**
+    * @dev Displayed when deleteSubnet() isn't yet available for users
+   */
+  error unCastVotesNotYetAvailable();  
 }
