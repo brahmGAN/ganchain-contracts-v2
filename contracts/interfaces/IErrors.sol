@@ -4,56 +4,12 @@ pragma solidity ^0.8.20;
 /**
  * @dev Errors only interface for the {GPU} implementations.
  */
-interface IErrors {
-  /**
-   * @dev Displayed when the user doesn't have a Node NFT key.  
-   */
-  error BuyNodeNFT();
-
-  /**
-   * @dev Displayed when it's not been 24 hours since last call. 
-   */
-  error InComplete24Hours();
-
-  /**
-   * @dev Displayed when the staking amount is less than the minimum required, which is 1000 GPoints. 
-   */
-  error InsufficientStakes();
-
-  /**
-   * @dev Displayed when there are no rewards to claim
-   */
-  error NoRewards();
-
+interface IErrors 
+{
   /**
    * @dev Displayed when transfer failed 
    */
   error TransferFailed();
-  
-  /**
-   * @dev Displayed when un-stake amount exceeds staked amount
-   */
-  error ExceedsStakedAmount();
-
-  /**
-   * @dev Displayed when un-stake amount is 0
-   */
-  error ZeroUnstakeAmount();
-
-  /**
-    * @dev Displayed when stake() isn't yet available for users
-   */
-  error stakeNotYetAvailable();
-
-  /**
-    * @dev Displayed when unStake() isn't yet available for users
-   */
-  error unStakeNotYetAvailable(); 
-
-  /**
-    * @dev Displayed when claim() isn't yet available for users
-   */
-  error claimNotYetAvailable();   
 
   /**
     * @dev Displayed when a wrong functionType is passed as a parameter
@@ -61,14 +17,9 @@ interface IErrors {
   error wrongFunctionType();
 
   /**
-    * @dev Displayed there's a mismatch in the queen array length that's passed into accumulate rewards
+    * @dev Displayed there's a mismatch in the arrays length that's passed 
    */
   error incorrectArraySize();
-
-  /**
-    * @dev Displayed when setCastedVotes isn't called by the owner 
-   */
-  error setCastedVote();
 
   /**
     * @dev Displayed when createSubnet() isn't yet available for users
@@ -96,37 +47,37 @@ interface IErrors {
   error cannotCreateMultipleSubnets();
 
   /**
-    * @dev Displayed when the users can't create multiple subnets 
+    * @dev Displayed when the users don't have sufficient vote balance 
    */
   error insufficientBalanceToCastVotes();  
 
   /**
-    * @dev Displayed when the users can't create multiple subnets 
+    * @dev Displayed when the users are trying to revoke votes more than what they've already cast  
    */
   error insufficientBalanceToRemoveVotes();  
 
   /**
-    * @dev Displayed when the users can't create multiple subnets 
+    * @dev Displayed when the users is trying to claim more than their current pending rewards  
    */
   error exceedesPendingRewards();  
 
   /**
-    * @dev Displayed when the users can't create multiple subnets 
+    * @dev Displayed when there's no sufficient balance of $GP's in the contract 
    */
   error inSufficientBalanceInContract();  
 
   /**
-    * @dev Displayed when deleteSubnet() isn't yet available for users
+    * @dev Displayed when claimRewards() isn't yet available for users
    */
   error claimRewardsNotYetAvailable();  
 
   /**
-    * @dev Displayed when deleteSubnet() isn't yet available for users
+    * @dev Displayed when castVotes() isn't yet available for users
    */
   error castVotesNotYetAvailable();  
 
   /**
-    * @dev Displayed when deleteSubnet() isn't yet available for users
+    * @dev Displayed when unCastVotes() isn't yet available for users
    */
   error unCastVotesNotYetAvailable();  
 }
