@@ -48,6 +48,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     bool public _deleteSubnets;
 
+    bool public _createMultipleSubnets;
+
     modifier onlyUpdater 
     {
         require(msg.sender == _updater, "You are not the authorized updater");
@@ -68,11 +70,10 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     function createSubnet() external 
     {
-        
         if (!_createSubnets) revert createSubnetsNotYetAvailable();
         if (_totalSubnetsHeld[msg.sender] > 0)
         {
-            //if (!_createMultipleSubnets) revert cannotCreateMultipleSubnets();
+            if (!_createMultipleSubnets) revert cannotCreateMultipleSubnets();
             _subnetId++;
             _subnetStatus[_subnetId] = true; 
             _subnetKing[_subnetId] = msg.sender; 
@@ -90,24 +91,24 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
             _subnetId++;
             _subnetStatus[_subnetId] = true; 
             _subnetKing[_subnetId] = msg.sender; 
-            _totalSubnetsHeld[msg.sender]++;
+            ++_totalSubnetsHeld[msg.sender];
             if (!_enrolledForKing[msg.sender])
             {
                 _kings.push(msg.sender); 
                 _enrolledForKing[msg.sender] =  true; 
             } 
+            //    todo emit event
             //emit createdSubnet(_subnetId, msg.sender);
         }
-        
     }
 
     function deleteSubnet(uint88 subnetId) external 
     {
-        
         if (!_deleteSubnets) revert deleteSubnetsNotYetAvailable();
         if (!_subnetStatus[subnetId]) revert subnetDeletedOrDoesntExist();
         if (_subnetKing[subnetId] != msg.sender) revert unauthorizedKing(); 
         _subnetStatus[subnetId] = false;
+        --_totalSubnetsHeld[msg.sender];
         //    todo emit event
         // emit deletedSubnet(subnetId, msg.sender);
     }
