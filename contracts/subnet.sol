@@ -30,6 +30,24 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     uint120 public _totalRewardsClaimedByAll; 
 
+    mapping(address => bool) public _enrolledForQueen;
+
+    bool public _createSubnets; 
+
+    mapping(address => uint120) public _totalSubnetsHeld; 
+
+    uint120 public _subnetId;
+
+    mapping(uint120 => bool) public _subnetStatus; 
+
+    mapping(uint120 =>  address) public _subnetKing;
+
+    mapping(address => bool) public _enrolledForKing;
+
+    address[] public _kings;
+
+    bool public _deleteSubnets;
+
     modifier onlyUpdater 
     {
         require(msg.sender == _updater, "You are not the authorized updater");
@@ -48,49 +66,51 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         _updater = updater; 
     }
 
-    // function createSubnet() external 
-    // {
-            //todo
-    //     if (!_createSubnets) revert createSubnetsNotYetAvailable();
-    //     if (_totalSubnetsHeld[msg.sender] > 0)
-    //     {
-    //         if (!_createMultipleSubnets) revert cannotCreateMultipleSubnets();
-    //         _subnetId++;
-    //         _subnetStatus[_subnetId] = true; 
-    //         _subnetKing[_subnetId] = msg.sender; 
-    //         _totalSubnetsHeld[msg.sender]++; 
-    //         if (!_enrolledForKing[msg.sender])
-    //         {
-    //             _kings.push(msg.sender); 
-    //             _enrolledForKing[msg.sender] =  true; 
-    //         } 
-    //         emit createdSubnet(_subnetId, msg.sender);
-    //     }
-    //     else 
-    //     {
-    //         _subnetId++;
-    //         _subnetStatus[_subnetId] = true; 
-    //         _subnetKing[_subnetId] = msg.sender; 
-    //         _totalSubnetsHeld[msg.sender]++;
-    //         if (!_enrolledForKing[msg.sender])
-    //         {
-    //             _kings.push(msg.sender); 
-    //             _enrolledForKing[msg.sender] =  true; 
-    //         } 
-    //         emit createdSubnet(_subnetId, msg.sender);
-    //     }
+    function createSubnet() external 
+    {
         
-    // }
+        if (!_createSubnets) revert createSubnetsNotYetAvailable();
+        if (_totalSubnetsHeld[msg.sender] > 0)
+        {
+            //if (!_createMultipleSubnets) revert cannotCreateMultipleSubnets();
+            _subnetId++;
+            _subnetStatus[_subnetId] = true; 
+            _subnetKing[_subnetId] = msg.sender; 
+            ++_totalSubnetsHeld[msg.sender]; 
+            if (!_enrolledForKing[msg.sender])
+            {
+                _kings.push(msg.sender); 
+                _enrolledForKing[msg.sender] =  true; 
+            } 
+            //    todo emit event
+            //emit createdSubnet(_subnetId, msg.sender);
+        }
+        else 
+        {
+            _subnetId++;
+            _subnetStatus[_subnetId] = true; 
+            _subnetKing[_subnetId] = msg.sender; 
+            _totalSubnetsHeld[msg.sender]++;
+            if (!_enrolledForKing[msg.sender])
+            {
+                _kings.push(msg.sender); 
+                _enrolledForKing[msg.sender] =  true; 
+            } 
+            //emit createdSubnet(_subnetId, msg.sender);
+        }
+        
+    }
 
-    // function deleteSubnet(uint88 subnetId) external 
-    // {
-            //todo
-    //     if (!_deleteSubnets) revert deleteSubnetsNotYetAvailable();
-    //     if (!_subnetStatus[subnetId]) revert subnetDeletedOrDoesntExist();
-    //     if (_subnetKing[subnetId] != msg.sender) revert unauthorizedKing(); 
-    //     _subnetStatus[subnetId] = false;
-    //     emit deletedSubnet(subnetId, msg.sender);
-    // }
+    function deleteSubnet(uint88 subnetId) external 
+    {
+        
+        if (!_deleteSubnets) revert deleteSubnetsNotYetAvailable();
+        if (!_subnetStatus[subnetId]) revert subnetDeletedOrDoesntExist();
+        if (_subnetKing[subnetId] != msg.sender) revert unauthorizedKing(); 
+        _subnetStatus[subnetId] = false;
+        //    todo emit event
+        // emit deletedSubnet(subnetId, msg.sender);
+    }
 
     function claimRewards(uint120 rewards) external
     {
@@ -116,7 +136,10 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         }
         _userTotalVotes[msg.sender] += totalVotes; 
         _maxVotes[msg.sender] -= totalVotes; 
-        _queens.push(msg.sender); 
+        if(!_enrolledForQueen[msg.sender]) {
+            _queens.push(msg.sender);
+            _enrolledForQueen[msg.sender] = true; 
+        }
         //todo emit event
     }
 
