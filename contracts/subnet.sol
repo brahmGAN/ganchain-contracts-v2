@@ -32,7 +32,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     modifier onlyUpdater 
     {
-        require(msg.sender == _updater);
+        require(msg.sender == _updater, "You are not the authorized updater");
         _; 
     }
  
@@ -50,6 +50,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     // function createSubnet() external 
     // {
+            //todo
     //     if (!_createSubnets) revert createSubnetsNotYetAvailable();
     //     if (_totalSubnetsHeld[msg.sender] > 0)
     //     {
@@ -83,6 +84,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     // function deleteSubnet(uint88 subnetId) external 
     // {
+            //todo
     //     if (!_deleteSubnets) revert deleteSubnetsNotYetAvailable();
     //     if (!_subnetStatus[subnetId]) revert subnetDeletedOrDoesntExist();
     //     if (_subnetKing[subnetId] != msg.sender) revert unauthorizedKing(); 
@@ -92,11 +94,14 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     function claimRewards(uint120 rewards) external
     {
-        //todo 
         if(rewards > _pendingRewards[msg.sender]) revert exceedesPendingRewards();
+        if((address(this).balance) < rewards) revert inSufficientBalanceInContract();
         _pendingRewards[msg.sender] -= rewards; 
         _totalRewardsClaimed[msg.sender] += rewards;
         _totalRewardsClaimedByAll += rewards; 
+        (bool success,) = payable(msg.sender).call{value:rewards}("");
+        if(!success) revert TransferFailed();  
+        //todo emit event
     } 
 
     function castVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
@@ -150,11 +155,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     //     emit setQueenReward(_lastRewardCalculated);
     // }
 
-    // function authorizedRewardSender(address user) external onlyOwner 
-    // {
-    //     //todo
-    // }
-
     // function setKingRewards(address[] calldata kings, uint88[] calldata kingRewards) external onlyOwner 
     // {
     //     //todo keep track of king rewards individually and totally earned by all so far but use the same pool for rewards claiming whether one is a queen or a king
@@ -177,6 +177,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     // /// @dev Set the status of the functions that users interact with. 
     // function setUserFunctionStatus(bool status, uint8 functionType) external onlyOwner {
+
+           //todo  
 
     //     /// @dev sets the status of stake(), functionType = 0
     //     if (functionType == 0) {
@@ -207,6 +209,24 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     //         revert wrongFunctionType(); 
     //     }
     // }
+
+    function authorizedRewardSender(address[] calldata users, uint120[] calldata rewards) external onlyOwner 
+    {
+        uint usersLength = users.length; 
+        if(usersLength != rewards.length) revert incorrectArraySize();
+
+        for(uint i=0; i < usersLength; i++)
+        {
+            if(rewards[i] > _pendingRewards[users[i]]) revert exceedesPendingRewards();
+            if((address(this).balance) < rewards[i]) revert inSufficientBalanceInContract();
+            _pendingRewards[users[i]] -= rewards[i]; 
+            _totalRewardsClaimed[users[i]] += rewards[i];
+            _totalRewardsClaimedByAll += rewards[i]; 
+            (bool success,) = payable(users[i]).call{value:rewards[i]}("");
+            if(!success) revert TransferFailed(); 
+        } 
+        //todo emit event 
+    }
 
     function setBatchSubnetsVotes(uint120[] calldata subnetId, uint120[] calldata votes) external onlyUpdater
     { 

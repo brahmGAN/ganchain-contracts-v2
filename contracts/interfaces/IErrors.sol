@@ -109,4 +109,9 @@ interface IErrors {
     * @dev Displayed when the users can't create multiple subnets 
    */
   error exceedesPendingRewards();  
+
+  /**
+    * @dev Displayed when the users can't create multiple subnets 
+   */
+  error inSufficientBalanceInContract();  
 }
