@@ -28,8 +28,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     mapping(address => uint120) public _totalRewardsClaimed; 
 
-    uint120 public _totalRewardsClaimedByAll; 
-
     mapping(address => bool) public _enrolledForQueen;
 
     bool public _createSubnets; 
@@ -49,6 +47,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     bool public _deleteSubnets;
 
     bool public _createMultipleSubnets;
+
+    mapping(address => uint120) _totalRewardsEarned;
 
     modifier onlyUpdater 
     {
@@ -119,7 +119,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if((address(this).balance) < rewards) revert inSufficientBalanceInContract();
         _pendingRewards[msg.sender] -= rewards; 
         _totalRewardsClaimed[msg.sender] += rewards;
-        _totalRewardsClaimedByAll += rewards; 
         (bool success,) = payable(msg.sender).call{value:rewards}("");
         if(!success) revert TransferFailed();  
         //todo emit event
@@ -159,25 +158,21 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         //todo emit event
     }
 
-    // function setQueenRewards(address[] calldata queens, uint88[] calldata queenRewards) external onlyOwner 
-    // {
-    //     //todo keep track of queen rewards individually and totally earned by all so far but use the same pool for rewards claiming whether one is a queen or a king
-    //     if (queens.length != queenRewards.length) revert incorrectArraySize(); 
+    function setQueenRewards(address[] calldata queens, uint88[] calldata queenRewards) external onlyOwner 
+    {
+        if (queens.length != queenRewards.length) revert incorrectArraySize(); 
 
-    //     uint queensLength = queenRewards.length; 
+        uint queensLength = queenRewards.length; 
 
-    //     for (uint i=0; i < queensLength; i++)
-    //     {
-    //         _totalRewardsEarned[queens[i]] += queenRewards[i]; 
-    //         _totalStakes += queenRewards[i]; 
-    //         _stakedAmount[queens[i]] += queenRewards[i]; 
-    //         _unUsedStakes[queens[i]] += queenRewards[i]; 
-    //     }
+        for (uint i=0; i < queensLength; i++)
+        {
+            _totalRewardsEarned[queens[i]] += queenRewards[i]; 
+            _pendingRewards[queens[i]] += queenRewards[i];
+        }
 
-    //     _lastRewardCalculated = uint40(block.timestamp); 
-
-    //     emit setQueenReward(_lastRewardCalculated);
-    // }
+        //todo emit event
+        //emit setQueenReward(_lastRewardCalculated);
+    }
 
     // function setKingRewards(address[] calldata kings, uint88[] calldata kingRewards) external onlyOwner 
     // {
@@ -245,7 +240,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
             if((address(this).balance) < rewards[i]) revert inSufficientBalanceInContract();
             _pendingRewards[users[i]] -= rewards[i]; 
             _totalRewardsClaimed[users[i]] += rewards[i];
-            _totalRewardsClaimedByAll += rewards[i]; 
             (bool success,) = payable(users[i]).call{value:rewards[i]}("");
             if(!success) revert TransferFailed(); 
         } 
