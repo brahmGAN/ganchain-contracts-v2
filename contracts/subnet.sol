@@ -15,7 +15,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     mapping(address => uint120) public _maxVotes; 
 
-    mapping(address => uint120) public _userTotalVotes; 
+    mapping(address => uint120) public _userCastedVotes; 
 
     mapping(address => mapping(uint120 => uint120)) public _userVotesToSubnet;
 
@@ -86,7 +86,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
                 _kings.push(msg.sender); 
                 _enrolledForKing[msg.sender] =  true; 
             } 
-            //    todo emit event
         }
         else 
         {
@@ -99,8 +98,9 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
                 _kings.push(msg.sender); 
                 _enrolledForKing[msg.sender] =  true; 
             } 
-            //    todo emit event
         }
+
+        // todo emit event
     }
 
     function deleteSubnet(uint88 subnetId) external 
@@ -130,14 +130,14 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (!_castVotes) revert castVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
-        if(_maxVotes[msg.sender] >= (totalVotes + _userTotalVotes[msg.sender])) revert insufficientBalanceToCastVotes();
+        if(_maxVotes[msg.sender] >= (totalVotes + _userCastedVotes[msg.sender])) revert insufficientBalanceToCastVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
             _subnetVotes[subnetId[i]] += votes[i]; 
-            _userVotesToSubnet[msg.sender][subnetId[i]] += votes[i];
+            _userVotesToSubnet[msg.sender][subnetId[i]] += votes[i]; // todo setter for userVotesToSubnet
         }
-        _userTotalVotes[msg.sender] += totalVotes; 
-        _maxVotes[msg.sender] -= totalVotes; 
+        _userCastedVotes[msg.sender] += totalVotes; // todo setter for userCastedVotes
+
         if(!_enrolledForQueen[msg.sender]) {
             _queens.push(msg.sender);
             _enrolledForQueen[msg.sender] = true; 
@@ -150,14 +150,13 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (!_unCastVotes) revert unCastVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
-        if(totalVotes <= _userTotalVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
+        if(totalVotes <= _userCastedVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
             _subnetVotes[subnetId[i]] -= votes[i]; 
             _userVotesToSubnet[msg.sender][subnetId[i]] -= votes[i];
         }
-        _userTotalVotes[msg.sender] -= totalVotes; 
-        _maxVotes[msg.sender] += totalVotes; 
+        _userCastedVotes[msg.sender] -= totalVotes; 
         //todo emit event
     }
 
@@ -278,6 +277,22 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
     function setUserMaxVotes(address queen,uint120 maxVotes) external onlyUpdater
     {
         _maxVotes[queen] = maxVotes; 
+        //todo emit timestamp
+    }
+
+    function setBatchUserCastedVotes(address[] calldata users,uint120[] calldata votes) external onlyUpdater 
+    {
+        uint usersLength = users.length; 
+        for(uint i=0; i < usersLength; i++)
+        {
+            _userCastedVotes[users[i]] = votes[i]; 
+        }
+        //todo emit timestamp
+    }
+
+    function setUserCastedVotes(address user,uint120 votes) external onlyUpdater 
+    {
+        _userCastedVotes[user] = votes; 
         //todo emit timestamp
     }
 }
