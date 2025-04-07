@@ -77,7 +77,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (_totalSubnetsHeld[msg.sender] > 0)
         {
             if (!_createMultipleSubnets) revert cannotCreateMultipleSubnets();
-            _subnetId++;
+            ++_subnetId;
             _subnetStatus[_subnetId] = true; 
             _subnetKing[_subnetId] = msg.sender; 
             ++_totalSubnetsHeld[msg.sender]; 
@@ -87,11 +87,10 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
                 _enrolledForKing[msg.sender] =  true; 
             } 
             //    todo emit event
-            //emit createdSubnet(_subnetId, msg.sender);
         }
         else 
         {
-            _subnetId++;
+            ++_subnetId;
             _subnetStatus[_subnetId] = true; 
             _subnetKing[_subnetId] = msg.sender; 
             ++_totalSubnetsHeld[msg.sender];
@@ -101,7 +100,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
                 _enrolledForKing[msg.sender] =  true; 
             } 
             //    todo emit event
-            //emit createdSubnet(_subnetId, msg.sender);
         }
     }
 
@@ -113,7 +111,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         _subnetStatus[subnetId] = false;
         --_totalSubnetsHeld[msg.sender];
         //    todo emit event
-        // emit deletedSubnet(subnetId, msg.sender);
     }
 
     function claimRewards(uint120 rewards) external
@@ -177,7 +174,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         }
 
         //todo emit event
-        //emit setQueenReward(_lastRewardCalculated);
     }
 
     function setKingRewards(address[] calldata kings, uint88[] calldata kingRewards) external onlyOwner 
@@ -193,7 +189,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         }
 
         //todo emit event    
-        //emit setKingReward(_lastKingRewardsCalculatedAt);
     }
 
     /// @dev Set the status of the functions that users interact with. 
