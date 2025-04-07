@@ -290,9 +290,16 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         //todo emit timestamp
     }
 
-    function setUserCastedVotes(address user,uint120 votes) external onlyUpdater 
+    function setBatchUserVotesToSubnet(address[] calldata users,uint120[] calldata votes, uint120[] calldata subnetIds) external onlyUpdater 
     {
-        _userCastedVotes[user] = votes; 
+        if(users.length != votes.length || users.length != subnetIds.length) revert incorrectArraySize(); 
+        
+        //todo emit timestamp
+    }
+
+    function setUserVotesToSubnet(address user,uint120 votes, uint120 subnetId) external onlyUpdater 
+    {
+        _userVotesToSubnet[user][subnetId] = votes; 
         //todo emit timestamp
     }
 }
