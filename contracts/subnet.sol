@@ -130,6 +130,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (!_castVotes) revert castVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
+        //todo re-check this! looks like a blunder! 
         if(_maxVotes[msg.sender] >= (totalVotes + _userCastedVotes[msg.sender])) revert insufficientBalanceToCastVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
@@ -292,8 +293,17 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     function setBatchUserVotesToSubnet(address[] calldata users,uint120[] calldata votes, uint120[] calldata subnetIds) external onlyUpdater 
     {
-        if(users.length != votes.length || users.length != subnetIds.length) revert incorrectArraySize(); 
+        if(users.length != votes.length) revert incorrectArraySize(); 
         
+        uint usersLength = users.length;
+        for(uint i=0; i < usersLength; i++)
+        {
+            uint subnetsCount = subnetIds.length; 
+            for(uint j=0; j < subnetsCount; j++)
+            {
+                _userVotesToSubnet[users[i]][subnetIds[j]] = votes[i]; 
+            }
+        } 
         //todo emit timestamp
     }
 
