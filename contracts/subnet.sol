@@ -99,8 +99,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
                 _enrolledForKing[msg.sender] =  true; 
             } 
         }
-
-        // todo emit event
+        emit createdSubnet(_subnetId, msg.sender, block.timestamp);
     }
 
     function deleteSubnet(uint88 subnetId) external 
@@ -110,7 +109,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (_subnetKing[subnetId] != msg.sender) revert unauthorizedKing(); 
         _subnetStatus[subnetId] = false;
         --_totalSubnetsHeld[msg.sender];
-        //    todo emit event
+        emit deletedSubnet(_subnetId, msg.sender, block.timestamp);
     }
 
     function claimRewards(uint120 rewards) external
@@ -122,7 +121,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         _totalRewardsClaimed[msg.sender] += rewards;
         (bool success,) = payable(msg.sender).call{value:rewards}("");
         if(!success) revert TransferFailed();  
-        //todo emit event
+        emit claimedRewards(msg.sender, rewards);
     } 
 
     function castVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
@@ -289,6 +288,12 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         {
             _userCastedVotes[users[i]] = votes[i]; 
         }
+        //todo emit timestamp
+    }
+
+    function setUserCastedVotes(address user,uint120 votes) external onlyUpdater 
+    {
+        _userCastedVotes[user] = votes; 
         //todo emit timestamp
     }
 
