@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "./interfaces/IErrors.sol"; 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./interfaces/IErrors.sol"; 
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
-contract GanNode is ERC721URIStorage,Ownable
+contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
 {
     uint120 _tokenID;
     mapping(address => uint120) _totalNodesHeld; 
 
     constructor(address owner) ERC721("Gan-Node","GN") Ownable(owner){}
 
-    function mint(address to,string memory uri) public onlyOwner
+    function mintNode(address to,string memory uri) public onlyOwner
     {
         ++_tokenID;
 
@@ -22,4 +23,37 @@ contract GanNode is ERC721URIStorage,Ownable
         ++_totalNodesHeld[to];
         //emit
     }
+
+    function batchNodeMint(address[] memory users, uint[] memory quantity,string memory uri) public onlyOwner
+    {
+        if(users.length != quantity.length) revert incorrectArraySize(); 
+        uint usersLength = users.length; 
+        for(uint i=0; i < usersLength; i++)
+        {
+            uint quantityLength = quantity[i];
+            for(uint j=0; j < quantityLength; j++)
+            {
+                mintNode(users[i], uri);
+            }
+        }
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+    
 }
