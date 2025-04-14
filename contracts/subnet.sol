@@ -131,7 +131,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
         //todo re-check this! looks like a blunder! 
-        if(_maxVotes[msg.sender] >= (totalVotes + _userCastedVotes[msg.sender])) revert insufficientBalanceToCastVotes();
+        // Fixed it
+        if((totalVotes + _userCastedVotes[msg.sender]) > _maxVotes[msg.sender]) revert insufficientBalanceToCastVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
             _subnetVotes[subnetId[i]] += votes[i]; 
