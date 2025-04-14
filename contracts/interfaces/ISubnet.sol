@@ -17,4 +17,18 @@ interface ISubnet
         address user, 
         uint120 rewardsClaimed
     );
+    event castedVotes(
+        address user, 
+        uint timestamp
+    );
+    event unCastedVotes(
+        address user, 
+        uint timestamp
+    );
+    event setQueenRewards( 
+        uint40 lastQueenRewardsCalculatedAt 
+    );
+    event setKingRewards( 
+        uint40 lastKingRewardsCalculatedAt 
+    );
 }

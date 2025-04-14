@@ -53,6 +53,10 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     bool public _unCastVotes;
 
+    uint256 _lastKingRewardsCalculatedAt;
+
+    uint256 _lastQueenRewardsCalculatedAt;
+
     modifier onlyUpdater 
     {
         require(msg.sender == _updater, "You are not the authorized updater");
@@ -143,7 +147,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
             _queens.push(msg.sender);
             _enrolledForQueen[msg.sender] = true; 
         }
-        //todo emit event
+        emit castedVotes(msg.sender, block.timestamp);
     }
 
     function unCastVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
@@ -158,7 +162,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
             _userVotesToSubnet[msg.sender][subnetId[i]] -= votes[i];
         }
         _userCastedVotes[msg.sender] -= totalVotes; 
-        //todo emit event
+        emit unCastedVotes(msg.sender, block.timestamp);
     }
 
     function setQueenRewards(address[] calldata queens, uint88[] calldata queenRewards) external onlyOwner 
@@ -172,8 +176,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
             _totalRewardsEarned[queens[i]] += queenRewards[i]; 
             _pendingRewards[queens[i]] += queenRewards[i];
         }
-
-        //todo emit event
+        _lastQueenRewardsCalculatedAt = block.timestamp;
+        emit setQueenRewards(_lastQueenRewardsCalculatedAt);
     }
 
     function setKingRewards(address[] calldata kings, uint88[] calldata kingRewards) external onlyOwner 
@@ -187,8 +191,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
             _totalRewardsEarned[kings[i]] += kingRewards[i]; 
             _pendingRewards[kings[i]] += kingRewards[i]; 
         }
-
-        //todo emit event    
+        _lastKingRewardsCalculatedAt = block.timestamp;
+        emit setKingRewards(_lastKingRewardsCalculatedAt);    
     }
 
     /// @dev Set the status of the functions that users interact with. 
