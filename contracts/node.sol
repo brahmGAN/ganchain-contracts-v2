@@ -8,6 +8,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
 contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
 {
+    event batchMinted(
+        uint timestamp
+    );
     uint120 _tokenID;
     mapping(address => uint120) _totalNodesHeld; 
 
@@ -21,7 +24,6 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         _setTokenURI(_tokenID,uri);
 
         ++_totalNodesHeld[to];
-        //emit
     }
 
     function batchNodeMint(address[] memory users, uint[] memory quantity,string memory uri) public onlyOwner
@@ -36,6 +38,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
                 mintNode(users[i], uri);
             }
         }
+        emit batchMinted(block.timestamp);
     }
 
     function tokenURI(uint256 tokenId)
