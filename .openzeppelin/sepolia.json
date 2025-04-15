@@ -10,12 +10,390 @@
       "address": "0x3b627d3A669E56f6dDb1A85E4a21CA904998036d",
       "txHash": "0x62ff715206c9619bc485cc15d78b92a006f958f247b38ac2eb10bdb970c05919",
       "kind": "uups"
+    },
+    {
+      "address": "0x571bc507e59101cF99210fc98Fe7e40839bE0793",
+      "txHash": "0x72624b70f03c10daa7e5adbfc84fffbf2a68b31989fd21dddeed5207cf2d236a",
+      "kind": "uups"
     }
   ],
   "impls": {
     "eed66138cedeab214d6ec4daf80320fb35021a9e03069ae378fc00e7f4725e8e": {
       "address": "0xCD0C38F84321171f54be860240A7cf91EADcB614",
       "txHash": "0x3c65f1cadeee1369380497af250c48627673a4c90d68a80f8f0c4c8f11379572",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "_subnetVotes",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_uint120,t_uint120)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:12"
+          },
+          {
+            "label": "_queens",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:14"
+          },
+          {
+            "label": "_maxVotes",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:16"
+          },
+          {
+            "label": "_userCastedVotes",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:18"
+          },
+          {
+            "label": "_userVotesToSubnet",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_mapping(t_uint120,t_uint120))",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:20"
+          },
+          {
+            "label": "_updater",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_address",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:22"
+          },
+          {
+            "label": "_pendingRewards",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:24"
+          },
+          {
+            "label": "_totalRewardsClaimed",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:26"
+          },
+          {
+            "label": "_enrolledForQueen",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:28"
+          },
+          {
+            "label": "_createSubnets",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_bool",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:30"
+          },
+          {
+            "label": "_totalSubnetsHeld",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:32"
+          },
+          {
+            "label": "_subnetId",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint120",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:34"
+          },
+          {
+            "label": "_subnetStatus",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_uint120,t_bool)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:36"
+          },
+          {
+            "label": "_subnetKing",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_uint120,t_address)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:38"
+          },
+          {
+            "label": "_enrolledForKing",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:40"
+          },
+          {
+            "label": "_kings",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:42"
+          },
+          {
+            "label": "_deleteSubnets",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_bool",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:44"
+          },
+          {
+            "label": "_createMultipleSubnets",
+            "offset": 1,
+            "slot": "16",
+            "type": "t_bool",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:46"
+          },
+          {
+            "label": "_totalRewardsEarned",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:48"
+          },
+          {
+            "label": "_claimRewards",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_bool",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:50"
+          },
+          {
+            "label": "_castVotes",
+            "offset": 1,
+            "slot": "18",
+            "type": "t_bool",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:52"
+          },
+          {
+            "label": "_unCastVotes",
+            "offset": 2,
+            "slot": "18",
+            "type": "t_bool",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:54"
+          },
+          {
+            "label": "_lastKingRewardsCalculatedAt",
+            "offset": 0,
+            "slot": "19",
+            "type": "t_uint256",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:56"
+          },
+          {
+            "label": "_lastQueenRewardsCalculatedAt",
+            "offset": 0,
+            "slot": "20",
+            "type": "t_uint256",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:58"
+          },
+          {
+            "label": "_authorizedRewardSentAt",
+            "offset": 0,
+            "slot": "21",
+            "type": "t_uint256",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:60"
+          },
+          {
+            "label": "_setBatchSubnetsVotesAt",
+            "offset": 0,
+            "slot": "22",
+            "type": "t_uint256",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:62"
+          },
+          {
+            "label": "_setBatchUserMaxVotesAt",
+            "offset": 0,
+            "slot": "23",
+            "type": "t_uint256",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:64"
+          },
+          {
+            "label": "_setBatchUserCastedVotesAt",
+            "offset": 0,
+            "slot": "24",
+            "type": "t_uint256",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:66"
+          },
+          {
+            "label": "_setBatchUserVotesToSubnetAt",
+            "offset": 0,
+            "slot": "25",
+            "type": "t_uint256",
+            "contract": "Subnet",
+            "src": "contracts/subnet.sol:68"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)221_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint120,t_uint120))": {
+            "label": "mapping(address => mapping(uint120 => uint120))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint120)": {
+            "label": "mapping(address => uint120)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint120,t_address)": {
+            "label": "mapping(uint120 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint120,t_bool)": {
+            "label": "mapping(uint120 => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint120,t_uint120)": {
+            "label": "mapping(uint120 => uint120)",
+            "numberOfBytes": "32"
+          },
+          "t_uint120": {
+            "label": "uint120",
+            "numberOfBytes": "15"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "d6cc1abc9b6f04dfcfeed517f8eddec9c89909f1e1c9808c18adeac83b8d9e08": {
+      "address": "0x59668816996f5f758771894694d0b4DfB411DC4b",
+      "txHash": "0x2fe785f53419e36e5770ebb18c4aa2cd156fc12d2400dd38a25f95c872d51e21",
       "layout": {
         "solcVersion": "0.8.28",
         "storage": [

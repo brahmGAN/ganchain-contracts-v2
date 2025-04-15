@@ -45,7 +45,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     bool public _createMultipleSubnets;
 
-    mapping(address => uint120) _totalRewardsEarned;
+    mapping(address => uint120) public _totalRewardsEarned;
 
     bool public _claimRewards;
 
@@ -53,19 +53,19 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
 
     bool public _unCastVotes;
 
-    uint256 _lastKingRewardsCalculatedAt;
+    uint256 public _lastKingRewardsCalculatedAt;
 
-    uint256 _lastQueenRewardsCalculatedAt;
+    uint256 public _lastQueenRewardsCalculatedAt;
 
-    uint256 _authorizedRewardSentAt;
+    uint256 public _authorizedRewardSentAt;
 
-    uint256 _setBatchSubnetsVotesAt;
+    uint256 public _setBatchSubnetsVotesAt;
 
-    uint256 _setBatchUserMaxVotesAt; 
+    uint256 public _setBatchUserMaxVotesAt; 
 
-    uint256 _setBatchUserCastedVotesAt; 
+    uint256 public _setBatchUserCastedVotesAt; 
 
-    uint256 _setBatchUserVotesToSubnetAt; 
+    uint256 public _setBatchUserVotesToSubnetAt; 
 
     modifier onlyUpdater 
     {
@@ -165,7 +165,9 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (!_unCastVotes) revert unCastVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
-        if(totalVotes <= _userCastedVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
+        //todo potential blunder
+        // Fixed it
+        if(totalVotes > _userCastedVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
             _subnetVotes[subnetId[i]] -= votes[i]; 
