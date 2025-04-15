@@ -59,5 +59,5 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         return super.supportsInterface(interfaceId);
     }
     
-    //todo add safe transfer 
+    //todo add safe transfer emit 
 }
