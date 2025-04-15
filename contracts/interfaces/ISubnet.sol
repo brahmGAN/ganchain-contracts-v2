@@ -25,10 +25,37 @@ interface ISubnet
         address user, 
         uint timestamp
     );
-    event setQueenRewards( 
-        uint40 lastQueenRewardsCalculatedAt 
+    event setQueenRewardsAt( 
+        uint lastQueenRewardsCalculatedAt 
     );
-    event setKingRewards( 
-        uint40 lastKingRewardsCalculatedAt 
+    event setKingRewardsAt( 
+        uint lastKingRewardsCalculatedAt 
+    );
+    event authorizedRewardSent(
+        uint timestamp
+    );
+    event setBatchSubnetsVotesAt(
+        uint _setBatchSubnetsVotesAt
+    );
+    event setBatchUserMaxVotesAt(
+        uint _setBatchUserMaxVotesAt
+    );
+    event setBatchUserCastedVotesAt(
+        uint _setBatchUserCastedVotesAt
+    );
+    event setBatchUserVotesToSubnetAt(
+        uint _setBatchUserVotesToSubnetAt
+    );
+    event setSubnetsVotesAt(
+        uint timestamp
+    );
+    event setUserMaxVotesAt(
+        uint timestamp
+    );
+    event setUserCastedVotesAt(
+        uint timestamp
+    );
+    event setUserVotesToSubnetAt(
+        uint timestamp
     );
 }
