@@ -9,6 +9,8 @@ contract GanNodeBalance
 
     mapping(address => string) public _evmToSS58; 
 
+    address[] public _validators; 
+
     event nodeBalance(
         address nodeHolder,
         uint nodeBalance 
@@ -23,6 +25,7 @@ contract GanNodeBalance
     {   
         require(_ganNode.balanceOf(msg.sender) > 0, "Insufficient balance");
         _evmToSS58[msg.sender] = ss58; 
+        _validators.push(msg.sender);
         emit nodeBalance(msg.sender,_ganNode.balanceOf(msg.sender));
     }
 }
