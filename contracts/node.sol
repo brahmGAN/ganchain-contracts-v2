@@ -11,6 +11,12 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
     event batchMinted(
         uint timestamp
     );
+
+    event nodeTransferred(
+        address sender, 
+        address receiver, 
+        uint quantity 
+    );
     uint120 public _tokenID;
     mapping(address => uint120) public _totalNodesHeld; 
 
@@ -59,5 +65,14 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         return super.supportsInterface(interfaceId);
     }
     
-    //todo add safe transfer emit 
+    function transferNode(uint quantity, address receiver,uint[] calldata tokenIds) public 
+    {
+        if (quantity > balanceOf(msg.sender)) revert insufficientNodes();
+        for(uint i=0; i < quantity; i++)
+        {
+            if (ownerOf(tokenIds[i]) != msg.sender) revert unAuthorizedOwner();
+            safeTransferFrom(msg.sender, receiver, tokenIds[i]);
+        }
+        emit nodeTransferred(msg.sender, receiver, quantity);
+    } 
 }

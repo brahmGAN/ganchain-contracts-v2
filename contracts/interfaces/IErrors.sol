@@ -80,4 +80,14 @@ interface IErrors
     * @dev Displayed when unCastVotes() isn't yet available for users
    */
   error unCastVotesNotYetAvailable();  
+
+   /**
+    * @dev Displayed when thre's insufficient nodes avaiable 
+   */
+  error insufficientNodes();  
+
+   /**
+    * @dev Displayed when user isn't the owner of the node
+   */
+  error unAuthorizedOwner();  
 }
