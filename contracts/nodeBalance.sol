@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract GanNode is IERC721
+contract GanNodeBalance 
 {
     IERC721 public _ganNode;
 
@@ -13,17 +13,15 @@ contract GanNode is IERC721
         uint nodeBalance 
     );
 
-    constructor(address owner, address ganNode)
+    constructor(address ganNode)
     {
         _ganNode = IERC721(ganNode);
     }
 
-    function storeSS58(string calldata ss58) public  
+    function storeSS58(string memory ss58) public  
     {   
-        if(_ganNode.balanceOf(msg.sender) > 0)
-        {
-            _evmToSS58 = ss58; 
-            emit nodeBalance(_ganNode.balanceOf(msg.sender));
-        }
+        require(_ganNode.balanceOf(msg.sender) > 0, "Insufficient balance");
+        _evmToSS58[msg.sender] = ss58; 
+        emit nodeBalance(_ganNode.balanceOf(msg.sender));
     }
 }
