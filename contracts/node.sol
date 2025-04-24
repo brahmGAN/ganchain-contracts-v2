@@ -29,17 +29,27 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
 
     mapping(address => uint120) public _totalNodesHeld; 
 
+    /// @dev Pending nodes to be sold by a user
     mapping(address => uint120) public _nodesToBeSold; 
 
-    uint120[] public _tierPrice; 
+    /// @dev Total quantity of the sell order
+    mapping(uint120 => uint120) _sellOrderQuantity; 
+
+    /// @dev Pending nodes to be sold in a sell order
+    mapping(uint120 => uint120) public _pendingNodesToBeSold; 
+
+    mapping(uint120 => uint120) public _tierPrice; 
 
     uint120 public _sellOrderId; 
 
+    /// @dev sellOrder created by 
     mapping(uint120 => address) _sellOrderBy;
 
-    mapping(uint120 => uint120) _sellOrderQuantity; 
-
+    /// @dev Nodes to be sold in this tier 
     mapping(uint120 => uint120) _sellOrderTier; 
+
+    /// @dev Used to check order status incase seller wants to withdraw the order
+    mapping(uint120 => bool) _sellOrderStatus; 
 
     constructor(address owner) ERC721("Gan-Node","GN") Ownable(owner){}
 
@@ -101,14 +111,52 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
 
     function sellNodes(uint120 quantity, uint[] calldata tokenIds,uint120 tierNumber) public 
     {
-        //Transfer these nodes to the contract 
         uint120 sellOrderId = _sellOrderId;
         _nodesToBeSold[msg.sender] += quantity; 
-        _sellOrderBy[sellOrderId] = msg.sender; 
         _sellOrderQuantity[sellOrderId] = quantity; 
+        _pendingNodesToBeSold[sellOrderId] = quantity;
+        _sellOrderBy[sellOrderId] = msg.sender;  
         _sellOrderTier[sellOrderId] = tierNumber; 
-        transferNode(quantity, address(this), tokenIds);
-        _sellOrderId++; 
+        _sellOrderStatus[sellOrderId] = true;
+        _sellOrderId++;  
+        //Transfer these nodes to the contract 
+        // transferNode(quantity, address(this), tokenIds);
+        //todo: Approve
+        //Approve the contract
+        setApprovalForAll(address(this), true);
         emit sellOrderCreated(msg.sender, quantity, tierNumber, sellOrderId);
+    }
+
+    function buyNodes(uint120 quantity,uint120 sellOrderId, uint[] calldata tokenIds) public payable 
+    {
+        uint120 tierNumber = _sellOrderTier[sellOrderId]; 
+        uint120 tierPrice = _tierPrice[tierNumber]; 
+        uint120 amount = tierPrice * quantity; 
+        address seller = _sellOrderBy[sellOrderId];
+        if(msg.value != amount) revert incorrectAmount();
+        _nodesToBeSold[seller] -= quantity;
+        _pendingNodesToBeSold[sellOrderId] -= quantity;
+        if(_pendingNodesToBeSold[sellOrderId] == 0)
+        {
+            _sellOrderStatus[sellOrderId] = false;
+        }
+        transferNode(quantity, msg.sender, tokenIds);
+        (bool success,) = payable(seller).call{value: amount}("");
+        if (!success) revert TransferFailed();
+    }
+
+    //todo add locks for user callable functions 
+    function cancelSellOrder(uint120 sellOrderId) public 
+    {
+        _nodesToBeSold[msg.sender] -= _pendingNodesToBeSold[sellOrderId];
+        _sellOrderStatus[sellOrderId] = false;  
+    }
+
+    function setTierPrice(uint120[] calldata tierPrice) public onlyOwner
+    {
+        for(uint120 i=0; i < tierPrice.length; i++)
+        {
+            _tierPrice[i] = tierPrice[i]; 
+        } 
     }
 }

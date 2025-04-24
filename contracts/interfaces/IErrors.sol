@@ -90,4 +90,9 @@ interface IErrors
     * @dev Displayed when user isn't the owner of the node
    */
   error unAuthorizedOwner();  
+
+  /**
+    * @dev Displayed when node buyer has sent the incorrect amount
+   */
+  error incorrectAmount();  
 }
