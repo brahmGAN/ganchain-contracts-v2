@@ -51,6 +51,8 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
     /// @dev Used to check order status incase seller wants to withdraw the order
     mapping(uint120 => bool) _sellOrderStatus; 
 
+    mapping(address => uint120) _nodesSold; 
+
     constructor(address owner) ERC721("Gan-Node","GN") Ownable(owner){}
 
     function mintNode(address to,string memory uri) public onlyOwner
@@ -118,7 +120,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         _sellOrderBy[sellOrderId] = msg.sender;  
         _sellOrderTier[sellOrderId] = tierNumber; 
         _sellOrderStatus[sellOrderId] = true;
-        _sellOrderId++;  
+        _sellOrderId++;   
         //Transfer these nodes to the contract 
         // transferNode(quantity, address(this), tokenIds);
         //todo: Approve
@@ -136,6 +138,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         if(msg.value != amount) revert incorrectAmount();
         _nodesToBeSold[seller] -= quantity;
         _pendingNodesToBeSold[sellOrderId] -= quantity;
+        _nodesSold[seller] += quantity; 
         if(_pendingNodesToBeSold[sellOrderId] == 0)
         {
             _sellOrderStatus[sellOrderId] = false;
