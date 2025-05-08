@@ -11,22 +11,41 @@ contract Monad is  ERC721URIStorage,ERC721Burnable,IErrors,Ownable
 
     uint120 public _tokenID;
 
-    address public _fundsHandler;
+    address public _fundsHandler; 
 
-    constructor(address owner, address fundsHandler) ERC721("GPUNET-Monad-Quest","MQ") Ownable(owner)
+    uint120 _mintPrice; 
+
+    event MonadNftMinted
+    (
+        address user,
+        uint256 mintPrice,
+        uint120 tokenID 
+    );
+
+    constructor(address owner, address fundsHandler, uint120 mintPrice) ERC721("GPUNET-Monad-Quest","MQ") Ownable(owner)
     {
         _fundsHandler = fundsHandler;
+        _mintPrice = mintPrice; 
     }
 
+    /// @dev This is for testing 
+    //https://lavender-puny-mosquito-504.mypinata.cloud/ipfs/QmR3udFV7BDMVt1pUDpsg4Y7jdLFCdpC5VwV7BkT9gMKYJ
+    // 6 ether 6000000000000000000
     function mintMonadNft(string memory uri) public payable
     {
-        if(msg.value != 6 ether) revert incorrectAmount(); 
+        if(msg.value != uint256(_mintPrice)) revert incorrectAmount(); 
 
         ++_tokenID;
         _safeMint(msg.sender, _tokenID);
         _setTokenURI(_tokenID,uri);
         (bool success,) = payable(_fundsHandler).call{value:msg.value}("");
         if(!success) revert TransferFailed(); 
+        emit MonadNftMinted(msg.sender, msg.value,_tokenID);
+    }
+
+    function setAmount(uint120 mintPrice) public onlyOwner 
+    {
+        _mintPrice = mintPrice; 
     }
 
     function tokenURI(uint256 tokenId)
