@@ -39,9 +39,15 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         uint120 sellOrderId 
     );
 
-    event setTierPRiceAt 
+    event setTierPriceAt 
     (
         uint timestamp 
+    );
+
+    event setLockStatusAt
+    (
+        uint functionType, 
+        bool status
     );
 
     uint120 public _tokenID;
@@ -185,7 +191,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
             _tierPrice[i] = tierPrice[i]; 
         }
 
-        emit setTierPRiceAt(block.timestamp);
+        emit setTierPriceAt(block.timestamp);
     }
 
     function setLockStatus(uint functionType, bool status) public onlyOwner 
@@ -206,5 +212,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         {
             revert wrongFunctionType(); 
         }
+
+        emit setLockStatusAt(functionType, status);
     }
 }
