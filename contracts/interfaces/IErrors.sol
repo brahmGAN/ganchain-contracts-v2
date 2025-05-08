@@ -94,5 +94,20 @@ interface IErrors
   /**
     * @dev Displayed when node buyer has sent the incorrect amount
    */
-  error incorrectAmount();  
+  error incorrectAmount(); 
+
+    /**
+    * @dev Displayed when node buyer has sent the incorrect amount
+   */
+  error sellNodesNotYetAvailable(); 
+
+   /**
+    * @dev Displayed when node buyer has sent the incorrect amount
+   */
+  error buyNodesNotYetAvailable(); 
+
+   /**
+    * @dev Displayed when node buyer has sent the incorrect amount
+   */
+  error cancelSellOrderNotYetAvailable(); 
 }
