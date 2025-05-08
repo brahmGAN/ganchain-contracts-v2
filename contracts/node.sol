@@ -2,6 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "./interfaces/IErrors.sol"; 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
@@ -41,7 +42,8 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
 
     event setTierPriceAt 
     (
-        uint timestamp 
+        uint timestamp, 
+        uint120[] tierPrice
     );
 
     event setLockStatusAt
@@ -56,7 +58,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
     mapping(address => uint120) public _nodesToBeSold; 
 
     /// @dev Total quantity of the sell order
-    mapping(uint120 => uint120) _sellOrderQuantity; 
+    mapping(uint120 => uint120)public _sellOrderQuantity; 
 
     /// @dev Pending nodes to be sold in a sell order
     mapping(uint120 => uint120) public _pendingNodesInOrder; 
@@ -66,15 +68,15 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
     uint120 public _sellOrderId; 
 
     /// @dev sellOrder created by 
-    mapping(uint120 => address) _sellOrderBy;
+    mapping(uint120 => address)public _sellOrderBy;
 
     /// @dev Nodes to be sold in this tier 
-    mapping(uint120 => uint120) _sellOrderTier; 
+    mapping(uint120 => uint120) public _sellOrderTier; 
 
     /// @dev Used to check order status incase seller wants to withdraw the order
-    mapping(uint120 => bool) _sellOrderStatus; 
+    mapping(uint120 => bool) public _sellOrderStatus; 
 
-    mapping(address => uint120) _nodesSold; 
+    mapping(address => uint120) public _nodesSold; 
 
     /// @dev locks for user callable functions 
     bool public _sellNodes;
@@ -102,7 +104,19 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
     {
         return super.supportsInterface(interfaceId);
     }
-    
+
+    function transferFrom(address from,address to,uint256 tokenId) public virtual override(ERC721, IERC721) onlyOwner 
+    {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from,address to,uint256 tokenId,bytes memory data) public virtual override(ERC721, IERC721) onlyOwner 
+    {
+        super.safeTransferFrom(from, to, tokenId, data);
+    }
+
+    /// @dev This is for testing 
+    //https://lavender-puny-mosquito-504.mypinata.cloud/ipfs/QmR3udFV7BDMVt1pUDpsg4Y7jdLFCdpC5VwV7BkT9gMKYJ
     function mintNode(address to,string memory uri) public onlyOwner
     {
         ++_tokenID;
@@ -126,13 +140,12 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         emit batchMinted(block.timestamp);
     }
     
-    function transferNode(uint quantity, address seller, address buyer,uint[] calldata tokenIds) internal 
+    function transferNode(uint quantity, address seller, address buyer,uint[] calldata tokenIds) internal
     {
-        if (quantity > balanceOf(seller)) revert insufficientNodes();
         for(uint i=0; i < quantity; i++)
         {
             if (ownerOf(tokenIds[i]) != seller) revert unAuthorizedOwner();
-            safeTransferFrom(seller, buyer, tokenIds[i]);
+            _transfer(seller, buyer, tokenIds[i]);
         }
     } 
 
@@ -160,9 +173,11 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         if(!_buyNodes) revert buyNodesNotYetAvailable(); 
         uint120 tierNumber = _sellOrderTier[sellOrderId]; 
         uint120 tierPrice = _tierPrice[tierNumber]; 
-        uint120 amount = tierPrice * quantity; 
+        uint256 amount = uint256(tierPrice) * uint256(quantity); 
         address seller = _sellOrderBy[sellOrderId];
         if(msg.value != amount) revert incorrectAmount();
+        if(quantity > balanceOf(seller)) revert insufficientNodes();
+        if(!isApprovedForAll(seller, address(this))) revert contractNotApproved();
         _nodesToBeSold[seller] -= quantity;
         _pendingNodesInOrder[sellOrderId] -= quantity;
         _nodesSold[seller] += quantity; 
@@ -170,7 +185,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         {
             _sellOrderStatus[sellOrderId] = false;
         }
-        transferNode(quantity, _sellOrderBy[sellOrderId], msg.sender, tokenIds);
+        transferNode(quantity, seller, msg.sender, tokenIds);
         (bool success,) = payable(seller).call{value: amount}("");
         if (!success) revert TransferFailed();
         emit nodesTransferred(seller,msg.sender,quantity,tokenIds);
@@ -184,6 +199,8 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
         emit cancelledOrder(msg.sender, block.timestamp, sellOrderId);
     }
 
+    /// @dev use this for testing 
+    // [100000000000000000,200000000000000000,300000000000000000,400000000000000000]
     function setTierPrice(uint120[] calldata tierPrice) public onlyOwner
     {
         for(uint120 i=0; i < tierPrice.length; i++)
@@ -191,7 +208,7 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
             _tierPrice[i] = tierPrice[i]; 
         }
 
-        emit setTierPriceAt(block.timestamp);
+        emit setTierPriceAt(block.timestamp,tierPrice);
     }
 
     function setLockStatus(uint functionType, bool status) public onlyOwner 

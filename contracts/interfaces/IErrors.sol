@@ -110,4 +110,9 @@ interface IErrors
     * @dev Displayed when node buyer has sent the incorrect amount
    */
   error cancelSellOrderNotYetAvailable(); 
+
+  /**
+    * @dev Displayed when node buyer has sent the incorrect amount
+   */
+  error contractNotApproved(); 
 }
