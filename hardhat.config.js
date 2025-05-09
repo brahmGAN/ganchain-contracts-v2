@@ -7,7 +7,7 @@ require('dotenv').config();
 // Using a hardcoded solution to avoid GitHub actions issues
 const DEPLOYER_PRIVATE_KEY =
   process.env.OWNER_PRIVATE_KEY ||
-  "";
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 module.exports = {
   solidity: {
