@@ -75,9 +75,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
  
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-
-    /// @dev Initializes the contract with GPU contract address and rewards per day for the queen nodes pool.
-    /// @dev `rewardsPerDay` should be passed in wei and not as GPoints 
+    
     function initialize(address updater) public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();

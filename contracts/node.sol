@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./interfaces/IErrors.sol"; 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
-contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
+contract GanNode is ERC721URIStorageUpgradeable, OwnableUpgradeable, ERC721BurnableUpgradeable, IErrors, UUPSUpgradeable, ReentrancyGuardUpgradeable
 {
     event nodeMinted(
         address to,
@@ -85,13 +88,23 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
 
     bool public _cancelSellOrder; 
 
-    constructor(address owner) ERC721("Gan-Node","GN") Ownable(owner){}
+    /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
+    function initialize() public initializer {
+        __ERC721_init("Gan-Node", "GN");
+        __ERC721URIStorage_init();
+        __ERC721Burnable_init();
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+        __ReentrancyGuard_init();
+    }
 
     function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
+    public
+    view
+    override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+    returns (string memory)
     {
         return super.tokenURI(tokenId);
     }
@@ -99,18 +112,18 @@ contract GanNode is ERC721URIStorage,Ownable,ERC721Burnable,IErrors
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721, ERC721URIStorage)
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
     }
 
-    function transferFrom(address from,address to,uint256 tokenId) public virtual override(ERC721, IERC721) onlyOwner 
+    function transferFrom(address from,address to,uint256 tokenId) public virtual override(ERC721Upgradeable, IERC721) onlyOwner 
     {
         super.transferFrom(from, to, tokenId);
     }
 
-    function safeTransferFrom(address from,address to,uint256 tokenId,bytes memory data) public virtual override(ERC721, IERC721) onlyOwner 
+    function safeTransferFrom(address from,address to,uint256 tokenId,bytes memory data) public virtual override(ERC721Upgradeable, IERC721) onlyOwner 
     {
         super.safeTransferFrom(from, to, tokenId, data);
     }
