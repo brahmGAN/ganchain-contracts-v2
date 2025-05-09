@@ -115,4 +115,9 @@ interface IErrors
     * @dev Displayed when node buyer has sent the incorrect amount
    */
   error contractNotApproved(); 
+
+  /**
+    * @dev Displayed when node buyer has sent the incorrect amount
+   */
+  error incorrectUnCastVoteValue(); 
 }

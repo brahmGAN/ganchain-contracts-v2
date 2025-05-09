@@ -85,6 +85,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         _updater = updater; 
     }
 
+    //Tested
     function createSubnet() external 
     {
         if (!_createSubnets) revert createSubnetsNotYetAvailable();
@@ -116,6 +117,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         emit createdSubnet(_subnetId, msg.sender, block.timestamp);
     }
 
+    //Tested
     function deleteSubnet(uint88 subnetId) external 
     {
         if (!_deleteSubnets) revert deleteSubnetsNotYetAvailable();
@@ -126,6 +128,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         emit deletedSubnet(_subnetId, msg.sender, block.timestamp);
     }
 
+    //Tested
+    /// @dev set the _pendingRewards using `setQueenRewards` and `setKingRewards`
     function claimRewards(uint120 rewards) external
     {
         if (!_claimRewards) revert claimRewardsNotYetAvailable();
@@ -138,6 +142,8 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         emit claimedRewards(msg.sender, rewards);
     } 
 
+    //Tested
+    /// @dev set the _maxVotes using `setBatchUserMaxVotes`
     function castVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
     {
         if (!_castVotes) revert castVotesNotYetAvailable();
@@ -158,6 +164,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         emit castedVotes(msg.sender, block.timestamp);
     }
 
+    //Tested
     function unCastVotes(uint120[] calldata subnetId, uint120[] calldata votes, uint120 totalVotes) external 
     {
         if (!_unCastVotes) revert unCastVotesNotYetAvailable();
@@ -166,6 +173,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if(totalVotes > _userCastedVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
+            if(votes[i] > _userVotesToSubnet[msg.sender][subnetId[i]]) revert incorrectUnCastVoteValue();
             _subnetVotes[subnetId[i]] -= votes[i]; 
             _userVotesToSubnet[msg.sender][subnetId[i]] -= votes[i];
         }
@@ -173,6 +181,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         emit unCastedVotes(msg.sender, block.timestamp);
     }
 
+    //Tested
     function setQueenRewards(address[] calldata queens, uint88[] calldata queenRewards) external onlyOwner 
     {
         if (queens.length != queenRewards.length) revert incorrectArraySize(); 
@@ -188,6 +197,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         emit setQueenRewardsAt(_lastQueenRewardsCalculatedAt);
     }
 
+    //Tested
     function setKingRewards(address[] calldata kings, uint88[] calldata kingRewards) external onlyOwner 
     {
         if (kings.length != kingRewards.length) revert incorrectArraySize(); 
@@ -201,8 +211,9 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         }
         _lastKingRewardsCalculatedAt = block.timestamp;
         emit setKingRewardsAt(_lastKingRewardsCalculatedAt);    
-    }
+    }   
 
+    //Tested
     /// @dev Set the status of the functions that users interact with. 
     function setUserFunctionStatus(bool status, uint8 functionType) external onlyOwner 
     {
@@ -241,6 +252,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         }
     }
 
+    //Tested
     function authorizedRewardSender(address[] calldata users, uint120[] calldata rewards) external onlyOwner 
     {
         uint usersLength = users.length; 
@@ -259,6 +271,7 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         emit authorizedRewardSent(_authorizedRewardSentAt); 
     }
 
+    //Tested
     function setBatchSubnetsVotes(uint120[] calldata subnetId, uint120[] calldata votes) external onlyUpdater
     { 
         if(subnetId.length != votes.length) revert incorrectArraySize();
@@ -267,16 +280,18 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         {
             _subnetVotes[subnetId[i]] = votes[i]; 
         }
+        _setBatchSubnetsVotesAt = block.timestamp;
         emit setBatchSubnetsVotesAt(_setBatchSubnetsVotesAt); 
     }
 
+    //Tested
     function setSubnetsVotes(uint120 subnetId, uint120 votes) external onlyUpdater
     {
         _subnetVotes[subnetId] = votes; 
         emit setSubnetsVotesAt(block.timestamp);
     }
 
-
+    //Tested
     function setBatchUserMaxVotes(address[] calldata queens,uint120[] calldata maxVotes) external onlyUpdater
     {
         if (queens.length != maxVotes.length) revert incorrectArraySize(); 
@@ -285,15 +300,18 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         {
             _maxVotes[queens[i]] = maxVotes[i];
         }
+        _setBatchUserMaxVotesAt = block.timestamp; 
         emit setBatchUserMaxVotesAt(_setBatchUserMaxVotesAt);
     }
 
+    //Tested
     function setUserMaxVotes(address queen,uint120 maxVotes) external onlyUpdater
     {
         _maxVotes[queen] = maxVotes; 
         emit setUserMaxVotesAt(block.timestamp);
     }
 
+    //Tested
     function setBatchUserCastedVotes(address[] calldata users,uint120[] calldata votes) external onlyUpdater 
     {
         uint usersLength = users.length; 
@@ -301,15 +319,18 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         {
             _userCastedVotes[users[i]] = votes[i]; 
         }
+        _setBatchUserCastedVotesAt = block.timestamp; 
         emit setBatchUserCastedVotesAt(_setBatchUserCastedVotesAt);
     }
 
+    //Tested
     function setUserCastedVotes(address user,uint120 votes) external onlyUpdater 
     {
         _userCastedVotes[user] = votes; 
         emit setUserCastedVotesAt(block.timestamp);
     }
 
+    //Tested
     function setBatchUserVotesToSubnet(address[] calldata users,uint120[] calldata votes, uint120[] calldata subnetIds) external onlyUpdater 
     {
         if(users.length != votes.length) revert incorrectArraySize(); 
@@ -323,12 +344,24 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
                 _userVotesToSubnet[users[i]][subnetIds[j]] = votes[i]; 
             }
         } 
+        _setBatchUserVotesToSubnetAt = block.timestamp; 
         emit setBatchUserVotesToSubnetAt(_setBatchUserVotesToSubnetAt);
     }
 
+    //Tested
     function setUserVotesToSubnet(address user,uint120 votes, uint120 subnetId) external onlyUpdater 
     {
         _userVotesToSubnet[user][subnetId] = votes; 
         emit setUserVotesToSubnetAt(block.timestamp);
     }
+
+    //Tested
+    function setUpdater(address updater) public onlyOwner
+    {
+        _updater = updater; 
+        emit setUpdaterAt(block.timestamp);
+    }
+
+    //Tested
+    receive() external payable {}
 }

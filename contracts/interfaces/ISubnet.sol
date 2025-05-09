@@ -58,4 +58,7 @@ interface ISubnet
     event setUserVotesToSubnetAt(
         uint timestamp
     );
+    event setUpdaterAt(
+        uint timestamp
+    );
 }

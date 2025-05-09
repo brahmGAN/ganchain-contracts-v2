@@ -13,7 +13,7 @@ contract Monad is  ERC721URIStorage,ERC721Burnable,IErrors,Ownable
 
     address public _fundsHandler; 
 
-    uint120 _mintPrice; 
+    uint120 public _mintPrice; 
 
     event MonadNftMinted
     (
@@ -29,7 +29,7 @@ contract Monad is  ERC721URIStorage,ERC721Burnable,IErrors,Ownable
     }
 
     /// @dev This is for testing 
-    //https://lavender-puny-mosquito-504.mypinata.cloud/ipfs/QmR3udFV7BDMVt1pUDpsg4Y7jdLFCdpC5VwV7BkT9gMKYJ
+    //https://emerald-abundant-wildfowl-967.mypinata.cloud/ipfs/bafkreig64vpxozqu436mc2of7fecasdxllif64l4omxl2usp6h6rokzfpu
     // 6 ether 6000000000000000000
     function mintMonadNft(string memory uri) public payable
     {
