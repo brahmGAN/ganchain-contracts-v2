@@ -143,15 +143,13 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (!_castVotes) revert castVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
-        //todo re-check this! looks like a blunder! 
-        // Fixed it
         if((totalVotes + _userCastedVotes[msg.sender]) > _maxVotes[msg.sender]) revert insufficientBalanceToCastVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
             _subnetVotes[subnetId[i]] += votes[i]; 
-            _userVotesToSubnet[msg.sender][subnetId[i]] += votes[i]; // todo setter for userVotesToSubnet
+            _userVotesToSubnet[msg.sender][subnetId[i]] += votes[i]; 
         }
-        _userCastedVotes[msg.sender] += totalVotes; // todo setter for userCastedVotes
+        _userCastedVotes[msg.sender] += totalVotes; 
 
         if(!_enrolledForQueen[msg.sender]) {
             _queens.push(msg.sender);
@@ -165,8 +163,6 @@ contract Subnet is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeab
         if (!_unCastVotes) revert unCastVotesNotYetAvailable();
         if(subnetId.length != votes.length) revert incorrectArraySize();
         uint totalSubnets = subnetId.length; 
-        //todo potential blunder
-        // Fixed it
         if(totalVotes > _userCastedVotes[msg.sender]) revert insufficientBalanceToRemoveVotes();
         for(uint i=0; i < totalSubnets; i++)
         {
