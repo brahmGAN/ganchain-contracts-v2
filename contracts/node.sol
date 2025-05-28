@@ -173,11 +173,11 @@ contract GanNode is ERC721URIStorageUpgradeable, OwnableUpgradeable, ERC721Burna
         _sellOrderTier[sellOrderId] = tierNumber; 
         _sellOrderStatus[sellOrderId] = true;
         _sellOrderId++;   
+        //todo: Transfer nodes to the contract 
         //Transfer these nodes to the contract 
-        // transferNode(quantity, msg.sender, address(this), tokenIds[]);
-        //todo: Approve
+        transferNode(quantity, msg.sender, address(this), tokenIds);
         //Approve the contract
-        setApprovalForAll(address(this), true);
+        // setApprovalForAll(address(this), true);
         emit sellOrderCreated(msg.sender, quantity, tierNumber, sellOrderId);
     }
 
