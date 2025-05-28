@@ -11,7 +11,6 @@ interface IERC721
     function balanceOf(address owner) external view returns (uint256 balance);
 }
 
-
 contract Monad is  ERC721URIStorage,ERC721Burnable,IErrors,Ownable
 {
 
@@ -43,19 +42,21 @@ contract Monad is  ERC721URIStorage,ERC721Burnable,IErrors,Ownable
     // https://emerald-abundant-wildfowl-967.mypinata.cloud/ipfs/bafkreig64vpxozqu436mc2of7fecasdxllif64l4omxl2usp6h6rokzfpu
     function mintMonadNft(string memory uri) public payable
     {
-        uint120 mintPrice;
+        uint mintPrice;
         if(_oldContract.balanceOf(msg.sender) > 0 )
         {
             // 5.9 ETH
-            mintPrice = _paidUserMintPrice; 
+            // 5900000000000000000
+            mintPrice = uint256(_paidUserMintPrice); 
         }
         else
         {
             // 6 eth
-            mintPrice = _mintPrice; 
+            // 6000000000000000000
+            mintPrice = uint256(_mintPrice); 
         } 
 
-        if(msg.value != uint256(mintPrice)) revert incorrectAmount(); 
+        if(msg.value != mintPrice) revert incorrectAmount(); 
 
         ++_tokenID;
         _safeMint(msg.sender, _tokenID);
@@ -72,7 +73,7 @@ contract Monad is  ERC721URIStorage,ERC721Burnable,IErrors,Ownable
 
     function setMintPriceForPaidUsers(uint120 mintPrice) public onlyOwner 
     {
-        _mintPrice = mintPrice; 
+        _paidUserMintPrice = mintPrice; 
     }
 
     function tokenURI(uint256 tokenId)
