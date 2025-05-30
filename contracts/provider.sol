@@ -150,7 +150,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         emit setBatchRewardsAt(block.timestamp);
     } 
 
-    function setLockStatus(uint lock, bool status) public onlyUpdater
+    function setLockStatus(bool status, uint lock) public onlyUpdater
     {
         if(lock == 0)
         {
@@ -160,7 +160,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         {
             _claimAllRewards = status; 
         }
-        else if(lock == 3)
+        else if(lock == 2)
         {
             _claimRewards = status; 
         }
