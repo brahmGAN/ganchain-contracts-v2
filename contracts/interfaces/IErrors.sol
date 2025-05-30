@@ -120,4 +120,16 @@ interface IErrors
     * @dev Displayed when node buyer has sent the incorrect amount
    */
   error incorrectUnCastVoteValue(); 
+
+   /**
+    * @dev Displayed when a funcion isn't available yet
+   */
+  error notYetAvailable(); 
+
+  /**
+    * @dev Displayed when a funcion isn't available yet
+   */
+  error providerExists(); 
+
+  error NothingToClaim();
 }

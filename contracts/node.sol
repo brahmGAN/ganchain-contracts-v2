@@ -100,6 +100,8 @@ contract GanNode is ERC721URIStorageUpgradeable, OwnableUpgradeable, ERC721Burna
         __ReentrancyGuard_init();
     }
 
+    receive() external payable {}
+
     function tokenURI(uint256 tokenId)
     public
     view
