@@ -68,7 +68,7 @@ describe("Providers", () => {
 
         await owner.sendTransaction({
             to: await providersProxy.getAddress(),
-            value: ethers.parseEther("100") // Adjust amount as needed
+            value: ethers.parseEther("100") 
         });
         
         await expect(await ethers.provider.getBalance(await providersProxy.getAddress())).to.be.equals(ethers.parseEther("100"));
