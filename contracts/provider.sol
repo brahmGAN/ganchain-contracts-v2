@@ -33,6 +33,46 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         require(msg.sender == _updater, "You are not the authorized updater");
         _; 
     }
+
+    event registeredProvider
+    (
+        address provider, 
+        uint120 totalProviders,
+        uint providerRegisteredAt
+    );
+
+    event claimedAllRewards
+    (
+        address provider, 
+        uint120 claimedRewards, 
+        uint timestamp
+    );
+
+    event claimedRewards
+    (
+        address provider, 
+        uint120 claimedRewards, 
+        uint timestamp
+    );
+
+    event setRewardsAt
+    (
+        address provider, 
+        uint120 rewards, 
+        uint timestamp
+    );
+
+    event setBatchRewardsAt
+    (
+        uint timestamp
+    );
+
+    event setLockStatusAt
+    (
+        uint lock,
+        bool status, 
+        uint timestamp
+    );
  
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -53,6 +93,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         _providers.push(msg.sender);
         _registered[msg.sender] = true; 
         ++_totalProviders; 
+        emit registeredProvider(msg.sender, _totalProviders, block.timestamp);
     }
 
     function claimAllRewards() public 
@@ -63,6 +104,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         _pendingRewards[msg.sender] = 0; 
         (bool success,) = payable(msg.sender).call{value:pendingRewards}("");
         if(!success) revert TransferFailed();
+        emit claimedAllRewards(msg.sender, pendingRewards, block.timestamp);
     }
 
     function claimRewards(uint120 rewards) public 
@@ -73,6 +115,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         _pendingRewards[msg.sender] -= rewards; 
         (bool success,) = payable(msg.sender).call{value:rewards}("");
         if(!success) revert TransferFailed();
+        emit claimedRewards(msg.sender, rewards, block.timestamp);
     }
 
     // function setTotalRewards(address provider, uint120 rewards) public onlyUpdater
@@ -93,6 +136,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
     {
         _pendingRewards[provider] += rewards; 
         _totalRewards[provider] += rewards; 
+        emit setRewardsAt(provider, rewards, block.timestamp);
     }  
 
     function setBatchRewards(address[] calldata provider, uint120[] calldata rewards) public onlyUpdater
@@ -103,6 +147,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
             _pendingRewards[provider[i]] += rewards[i]; 
             _totalRewards[provider[i]] += rewards[i];
         } 
+        emit setBatchRewardsAt(block.timestamp);
     } 
 
     function setLockStatus(uint lock, bool status) public onlyUpdater
@@ -123,5 +168,7 @@ contract providers is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         {
             revert wrongFunctionType();
         }
+
+        emit setLockStatusAt(lock, status, block.timestamp);
     }
 }

@@ -21,6 +21,31 @@ contract gpuNetAirdrops is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         require(msg.sender == _updater, "You are not the authorized updater");
         _; 
     }
+
+    event claimedAirdrop
+    (
+        address airdropHunter,
+        uint120 airdrop,
+        uint claimedAirdropAt
+    );
+
+    event setAirdropAt
+    (
+        address airdropHunter,
+        uint120 airdrop,
+        uint timestamp
+    );
+
+    event setBatchAirdropAt
+    (
+        uint timestamp
+    );
+
+    event setClaimAirdropsStatusAt
+    (
+        bool status, 
+        uint timestamp
+    );
  
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -45,11 +70,14 @@ contract gpuNetAirdrops is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         _totalClaimedAirdrop[msg.sender] += airdrop; 
         (bool success,) = payable(msg.sender).call{value:airdrop}("");
         if(!success) revert TransferFailed(); 
+
+        emit claimedAirdrop(msg.sender, airdrop, block.timestamp);
     }
 
     function setAirdrop(address airdropHunter, uint120 airdrop) public onlyUpdater 
     {
         _airdrop[airdropHunter] = airdrop; 
+        emit setAirdropAt(msg.sender, airdrop, block.timestamp);
     }
 
     function setBatchAirdrop(address[] calldata airdropHunters, uint120[] calldata airdrops) public onlyUpdater 
@@ -59,10 +87,12 @@ contract gpuNetAirdrops is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         {
             _airdrop[airdropHunters[i]] = airdrops[i]; 
         }
+        emit setBatchAirdropAt(block.timestamp);
     }
 
     function setClaimAirdropsStatus(bool status) public onlyUpdater
     {
         _claimAirdrops = status; 
+        emit setClaimAirdropsStatusAt(status,block.timestamp);
     }
 }
