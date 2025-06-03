@@ -76,7 +76,7 @@ contract gpuNetAirdrops is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
 
     function setAirdrop(address airdropHunter, uint120 airdrop) public onlyUpdater 
     {
-        _airdrop[airdropHunter] = airdrop; 
+        _airdrop[airdropHunter] += airdrop; 
         emit setAirdropAt(msg.sender, airdrop, block.timestamp);
     }
 
@@ -85,7 +85,7 @@ contract gpuNetAirdrops is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         uint totalHunters = airdropHunters.length; 
         for(uint i=0; i < totalHunters; i++)
         {
-            _airdrop[airdropHunters[i]] = airdrops[i]; 
+            _airdrop[airdropHunters[i]] += airdrops[i]; 
         }
         emit setBatchAirdropAt(block.timestamp);
     }

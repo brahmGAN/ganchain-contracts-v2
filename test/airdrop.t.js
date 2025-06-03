@@ -49,17 +49,17 @@ describe("Airdrop", () => {
   describe("Interact with all user callable functions", () => {
     it("Should claim Airdrops", async () => {
         await expect(await airdropProxy._totalClaimedAirdrop(hunter1)).to.be.equals(ethers.parseEther("0"));
-        await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(ethers.parseEther("69"));
+        await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(ethers.parseEther("129"));
 
         await owner.sendTransaction({
             to: await airdropProxy.getAddress(),
-            value: ethers.parseEther("100") 
+            value: ethers.parseEther("129") 
         });
       await airdropProxy
         .connect(hunter1)
         .claimAirdrops();
 
-        await expect(await airdropProxy._totalClaimedAirdrop(hunter1)).to.be.equals(ethers.parseEther("69"));
+        await expect(await airdropProxy._totalClaimedAirdrop(hunter1)).to.be.equals(ethers.parseEther("129"));
         await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(ethers.parseEther("0"));
     });
   });
