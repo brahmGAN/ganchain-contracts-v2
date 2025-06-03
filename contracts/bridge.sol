@@ -16,17 +16,26 @@ contract GpuBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
 
     mapping(uint120 => mapping(address => uint)) public _lockedAmount; 
 
+    bool public _lockGpu; 
+
     event lockedGpu
     (
-        address user, 
+        address user,
         uint amountLocked, 
         uint120 lockId 
+    );
+
+    event setLockStatusAt
+    (
+        uint lock, 
+        bool status, 
+        uint timestamp
     );
  
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
     
-    function initialize(address updater) public initializer {
+    function initialize() public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
@@ -36,6 +45,7 @@ contract GpuBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
 
     function lockGpu() public payable 
     {
+        if(!_lockGpu) revert notYetAvailable(); 
         uint120 lockId = _lockId; 
         _lockedUser[lockId] = msg.sender;
         _lockedAmount[lockId][msg.sender] = msg.value; 
@@ -44,25 +54,17 @@ contract GpuBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgrad
         emit lockedGpu(msg.sender, msg.value, lockId);
     }
     
-    // function setLockStatus(bool status, uint lock) public onlyOwner
-    // {
-    //     if(lock == 0)
-    //     {
-    //         _registerProvider = status; 
-    //     }
-    //     else if(lock == 1)
-    //     {
-    //         _claimAllRewards = status; 
-    //     }
-    //     else if(lock == 2)
-    //     {
-    //         _claimRewards = status; 
-    //     }
-    //     else
-    //     {
-    //         revert wrongFunctionType();
-    //     }
+    function setLockStatus(bool status, uint lock) public onlyOwner
+    {
+        if(lock == 0)
+        {
+            _lockGpu = status; 
+        }
+        else
+        {
+            revert wrongFunctionType();
+        }
 
-    //     emit setLockStatusAt(lock, status, block.timestamp);
-    // }
-}
+        emit setLockStatusAt(lock, status, block.timestamp);
+    }
+} 
