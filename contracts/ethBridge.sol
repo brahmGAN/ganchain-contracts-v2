@@ -70,11 +70,12 @@ contract GpuEthBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpg
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
     
-    function initialize(address gpuToken) public initializer { 
+    function initialize(address gpuToken,address initialRelayer) public initializer { 
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         _gpuToken = IERC20(gpuToken); 
+        _isRelayer[initialRelayer] = true; 
     }
 
     receive() external payable {}
@@ -99,7 +100,7 @@ contract GpuEthBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpg
             if(_gpuToken.balanceOf(address(this)) < amount) revert inSufficientBalanceInContract();
             uint120 releaseId = _releaseId;
             _releasedUser[releaseId] = receiver; 
-            _totalReleasedAmount[msg.sender] += amount;
+            _totalReleasedAmount[receiver] += amount;
             _releaseId++; 
             _releaseRecipients.push(receiver);
             bool success =_gpuToken.transfer(receiver, amount);
@@ -107,7 +108,7 @@ contract GpuEthBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpg
             emit releasedGpu(receiver, amount, releaseId, block.timestamp);
     }
 
-    function setRelayers(address[] calldata relayers, bool[] calldata relayerStatus) public onlyRelayer
+    function setRelayers(address[] calldata relayers, bool[] calldata relayerStatus) public onlyOwner
     {
         uint totalRelayers = relayers.length;
         for(uint i=0; i < totalRelayers; i++)

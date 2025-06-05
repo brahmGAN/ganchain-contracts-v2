@@ -93,7 +93,7 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
             if(address(this).balance < amount) revert inSufficientBalanceInContract();
             uint120 releaseId = _releaseId;
             _releasedUser[releaseId] = receiver; 
-            _totalReleasedAmount[msg.sender] += amount;
+            _totalReleasedAmount[receiver] += amount;
             _releaseId++; 
             _releaseRecipients.push(receiver);
             (bool success,) = payable(receiver).call{value:amount}("");
@@ -101,7 +101,7 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
             emit releasedGpu(receiver, amount, releaseId, block.timestamp);
     }
 
-    function setRelayers(address[] calldata relayers, bool[] calldata relayerStatus) public onlyRelayer
+    function setRelayers(address[] calldata relayers, bool[] calldata relayerStatus) public onlyOwner
     {
         uint totalRelayers = relayers.length;
         for(uint i=0; i < totalRelayers; i++)
