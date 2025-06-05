@@ -20,11 +20,11 @@ contract GpuEthBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpg
 
     mapping(uint120 => address) public _lockedUser; 
 
-    mapping(uint120 => uint) public _lockedAmount; 
+    mapping(address => uint120) public _totalLockedAmount; 
 
     mapping(uint120 => address) public _releasedUser; 
 
-    mapping(uint120 => uint) public _releasedAmount; 
+    mapping(address => uint120) public _totalReleasedAmount; 
 
     bool public _lockGpu; 
 
@@ -37,14 +37,16 @@ contract GpuEthBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpg
     (
         address user,
         uint amountLocked, 
-        uint120 lockId 
+        uint120 lockId, 
+        uint timestamp 
     );
 
     event releasedGpu
     (
         address user,
         uint amountReleased, 
-        uint120 releaseId 
+        uint120 releaseId, 
+        uint timestamp 
     );
 
     event setLockStatusAt
@@ -77,30 +79,32 @@ contract GpuEthBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpg
 
     receive() external payable {}
 
-    function lockGpu(uint amount) public  
+    function lockGpu(uint120 amount) public nonReentrant
     {
         if(!_lockGpu) revert notYetAvailable(); 
+        if(_gpuToken.balanceOf(msg.sender) < amount) revert inSufficientBalanceInContract();
+        if(_gpuToken.allowance(msg.sender, address(this)) < amount) revert ContractIsNotApproved();
         uint120 lockId = _lockId; 
         _lockedUser[lockId] = msg.sender;
-        _lockedAmount[lockId] = amount; 
+        _totalLockedAmount[msg.sender] += amount; 
         _lockId++; 
         _gpuLockers.push(msg.sender); 
         _gpuToken.safeTransferFrom(msg.sender,address(this),amount);
-        emit lockedGpu(msg.sender, amount, lockId);
+        emit lockedGpu(msg.sender, amount, lockId, block.timestamp);
     }
 
     /// @notice `amount` should be passed in wei
-    function releaseGpu(uint amount, address receiver) public onlyRelayer
+    function releaseGpu(uint120 amount, address receiver) public onlyRelayer
     {
             if(_gpuToken.balanceOf(address(this)) < amount) revert inSufficientBalanceInContract();
             uint120 releaseId = _releaseId;
             _releasedUser[releaseId] = receiver; 
-            _releasedAmount[releaseId] = amount;
+            _totalReleasedAmount[msg.sender] += amount;
             _releaseId++; 
             _releaseRecipients.push(receiver);
             bool success =_gpuToken.transfer(receiver, amount);
             if(!success) revert TransferFailed(); 
-            emit releasedGpu(receiver, amount, releaseId);
+            emit releasedGpu(receiver, amount, releaseId, block.timestamp);
     }
 
     function setRelayers(address[] calldata relayers, bool[] calldata relayerStatus) public onlyRelayer

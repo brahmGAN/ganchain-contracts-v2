@@ -18,31 +18,30 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
 
     mapping(uint120 => address) public _lockedUser; 
 
-    mapping(uint120 => uint) public _lockedAmount; 
+    mapping(address => uint120) public _totalLockedAmount; 
 
     mapping(uint120 => address) public _releasedUser; 
 
-    mapping(uint120 => uint) public _releasedAmount; 
+    mapping(address => uint120) public _totalReleasedAmount; 
 
     bool public _lockGpu; 
 
     mapping(address => bool) public _isRelayer; 
 
-    // using SafeERC20 for IERC20;
-    // IERC20 public _gpuToken; 
-
     event lockedGpu
     (
         address user,
         uint amountLocked, 
-        uint120 lockId 
+        uint120 lockId, 
+        uint timestamp 
     );
 
     event releasedGpu
     (
         address user,
         uint amountReleased, 
-        uint120 releaseId 
+        uint120 releaseId, 
+        uint timestamp 
     );
 
     event setLockStatusAt
@@ -66,40 +65,40 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
     
-    function initialize() public initializer { 
+    function initialize(address initialRelayer) public initializer 
+    { 
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
-        //_gpuToken = IERC20(gpuToken); 
+        _isRelayer[initialRelayer] = true; 
     }
 
     receive() external payable {}
 
-    function lockGpu(uint amount) public payable
+    function lockGpu(uint amount) public payable nonReentrant
     {
         if(!_lockGpu) revert notYetAvailable(); 
         if(msg.value != amount) revert incorrectAmount();
         uint120 lockId = _lockId; 
         _lockedUser[lockId] = msg.sender;
-        _lockedAmount[lockId] = amount; 
+        _totalLockedAmount[msg.sender] += uint120(msg.value); 
         _lockId++; 
         _gpuLockers.push(msg.sender); 
-        //_gpuToken.safeTransferFrom(msg.sender,address(this),amount);
-        emit lockedGpu(msg.sender, amount, lockId);
+        emit lockedGpu(msg.sender, msg.value, lockId, block.timestamp);
     }
 
     /// @notice `amount` should be passed in wei
-    function releaseGpu(uint amount, address receiver) public onlyRelayer
+    function releaseGpu(uint120 amount, address receiver) public onlyRelayer
     {
             if(address(this).balance < amount) revert inSufficientBalanceInContract();
             uint120 releaseId = _releaseId;
             _releasedUser[releaseId] = receiver; 
-            _releasedAmount[releaseId] = amount;
+            _totalReleasedAmount[msg.sender] += amount;
             _releaseId++; 
             _releaseRecipients.push(receiver);
             (bool success,) = payable(receiver).call{value:amount}("");
             if(!success) revert TransferFailed(); 
-            emit releasedGpu(receiver, amount, releaseId);
+            emit releasedGpu(receiver, amount, releaseId, block.timestamp);
     }
 
     function setRelayers(address[] calldata relayers, bool[] calldata relayerStatus) public onlyRelayer

@@ -134,4 +134,6 @@ interface IErrors
   error NothingToClaim();
 
   error exceedesMaxLimit();
+
+  error ContractIsNotApproved();
 }
