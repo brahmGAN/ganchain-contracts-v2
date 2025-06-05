@@ -3,7 +3,7 @@ require('dotenv').config();
 
 async function main() {
     // Contract address (replace with your deployed contract address)
-    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+    const contractAddress = "0xB192A74fA21ed7f5C1A6f81D95F3C76665271ba1";
     
     // Get provider and owner wallet
     const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
@@ -13,9 +13,13 @@ async function main() {
     const gpuToken = await ethers.getContractAt("GpuTokenEth", contractAddress, owner);
     
     console.log("Pausing transfers...");
+
+    const aryan = "0xDb912955Ea48Ed428978980c70d76272656B5e4d"; 
     
     // Call pauseTransfers function
-    const tx = await gpuToken.pauseTransfers();
+    const tx = await gpuToken.mint(aryan,ethers.parseEther("20000"));
+    // const tx = await gpuToken.pauseTransfers();
+    //const tx = await gpuToken.unpauseTransfers();
     await tx.wait();
     
     console.log("✅ Transfers paused successfully!");

@@ -10,7 +10,7 @@ async function main()
   const gpuTokenEthProxy = await upgrades.deployProxy(
     gpuTokenEthFactory,
     [
-        ethers.parseEther("5000000")
+        ethers.parseEther("1000000")
     ],
     { initializer: "initialize",
         gasPrice: ethers.parseUnits("30", "gwei"),
