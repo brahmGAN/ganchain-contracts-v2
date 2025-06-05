@@ -30,6 +30,21 @@
       "address": "0xb80C02222d39668B6BB5f2EA0bE8C462172273c3",
       "txHash": "0xd98e4051c1944c0a3ce1bfee1521a729183676902f729c40b586f39b12a9751b",
       "kind": "uups"
+    },
+    {
+      "address": "0x0d98598B8051d39F84A170b43b643d0CeA642cD0",
+      "txHash": "0x4e0dd11d54b58fa939a047d9e278f65bd081a93433385cce12cf4098cfe4b4a9",
+      "kind": "uups"
+    },
+    {
+      "address": "0xf5D74E0645975c74fc88fE82267A1F2634D622bc",
+      "txHash": "0x5e83c76fb69be4640cf16d2a4cff592a73ccb570a284349cf1cad86bebad2317",
+      "kind": "uups"
+    },
+    {
+      "address": "0xE4Ab7f0bCCeD45b0451D786C9DbfbDC5DB184418",
+      "txHash": "0xd678ef0af9e328146e57e85acc1de59ac57688a828bbd3ce086fa254745ec94b",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -1196,6 +1211,227 @@
               "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
               "offset": 0,
               "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "3eb9fbcce06ce98268cfb4fa337c54e4cdbd69b4c20c37ca730318da81753935": {
+      "address": "0x8e3D0a8853C76e006E8a1eb2C578862b818EE344",
+      "txHash": "0x0e5e3f73705ab4ca3a7ad5c7536df40c8a265359f027c22b435fe8c2ebd8acef",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "_gpuLockers",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:13"
+          },
+          {
+            "label": "_releaseRecipients",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:15"
+          },
+          {
+            "label": "_lockId",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint120",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:17"
+          },
+          {
+            "label": "_releaseId",
+            "offset": 15,
+            "slot": "2",
+            "type": "t_uint120",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:19"
+          },
+          {
+            "label": "_lockedUser",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint120,t_address)",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:21"
+          },
+          {
+            "label": "_totalLockedAmount",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:23"
+          },
+          {
+            "label": "_releasedUser",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_uint120,t_address)",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:25"
+          },
+          {
+            "label": "_totalReleasedAmount",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:27"
+          },
+          {
+            "label": "_lockGpu",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_bool",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:29"
+          },
+          {
+            "label": "_isRelayer",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:31"
+          },
+          {
+            "label": "_gpuToken",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_contract(IERC20)1308",
+            "contract": "GpuEthBridge",
+            "src": "contracts/ethBridge.sol:34"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)221_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IERC20)1308": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint120)": {
+            "label": "mapping(address => uint120)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint120,t_address)": {
+            "label": "mapping(uint120 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_uint120": {
+            "label": "uint120",
+            "numberOfBytes": "15"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
             }
           ],
           "erc7201:openzeppelin.storage.Initializable": [
