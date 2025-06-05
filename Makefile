@@ -11,3 +11,6 @@ deploy-sepolia:
 
 deploy-gpu: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/Subnet_deploy.js --network gpu
+
+deploy-gpuToken: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/GpuTokenEth_deploy.js --network sepolia

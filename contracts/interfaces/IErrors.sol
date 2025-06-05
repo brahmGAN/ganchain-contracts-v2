@@ -132,4 +132,6 @@ interface IErrors
   error providerExists(); 
 
   error NothingToClaim();
+
+  error exceedesMaxLimit();
 }
