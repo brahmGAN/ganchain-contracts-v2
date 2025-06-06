@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 const { expect, use } = require("chai");
 
-describe("Airdrop", () => {
+describe("Bridge:", () => {
   let owner;
   let relayer1; 
   let relayer2; 
@@ -57,7 +57,7 @@ describe("Airdrop", () => {
   describe("Make the swap from GAN chain -> Ethereum", () => {
     it("Should let users lock GPU on ganchain", async () => {
       await expect(await ethers.provider.getBalance(await ganBridgeProxy.getAddress())).to.be.equals(ethers.parseEther("0"));
-      await ganBridgeProxy.connect(user1).lockGpu(ethers.parseEther("10"),{ value: ethers.parseEther("10") } );
+      await ganBridgeProxy.connect(user1).lockGpu(ethers.parseEther("10"),1,{ value: ethers.parseEther("10") } );
       await expect(await ethers.provider.getBalance(await ganBridgeProxy.getAddress())).to.be.equals(ethers.parseEther("10"));
       await expect(await ganBridgeProxy._totalLockedAmount(user1.address)).to.be.equals(ethers.parseEther("10"));
       await expect(await ganBridgeProxy._lockedUser(0)).to.be.equals(user1.address);
@@ -89,12 +89,13 @@ describe("Airdrop", () => {
     });
 
     it("Should release GPU to user-1 on Ethereum", async () => {
-      await ganBridgeProxy.connect(user1).lockGpu(ethers.parseEther("100"),{ value: ethers.parseEther("100") } );
+      await ganBridgeProxy.connect(user1).lockGpu(ethers.parseEther("100"),1,{ value: ethers.parseEther("100") } );
       await expect(await ethers.provider.getBalance(await ganBridgeProxy.getAddress())).to.be.equals(ethers.parseEther("110"));
-      await expect(await ethers.provider.getBalance(user2.address)).to.equal(ethers.parseEther("9999.999786901970968666"));
+      console.log("user 2 balance: "+await ethers.provider.getBalance(user2.address));
+      await expect(await ethers.provider.getBalance(user2.address)).to.equal(ethers.parseEther("9999.999786901751551432"));
       console.log("user2 balance:"+await ethers.provider.getBalance(user2.address));
       await ganBridgeProxy.connect(relayer2).releaseGpu(ethers.parseEther("69"),user2);
-      await expect(await ethers.provider.getBalance(user2.address)).to.equal(ethers.parseEther("10068.999786901970968666"));
+      await expect(await ethers.provider.getBalance(user2.address)).to.equal(ethers.parseEther("10068.999786901751551432"));
       await expect(await ganBridgeProxy._totalReleasedAmount(user2.address)).to.be.equals(ethers.parseEther("69"));
       await expect(await ganBridgeProxy._releasedUser(0)).to.be.equals(user2.address);
     });
