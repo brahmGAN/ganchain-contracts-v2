@@ -33,7 +33,8 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         address user,
         uint amountLocked, 
         uint120 lockId, 
-        uint timestamp 
+        uint timestamp,
+        uint chain 
     );
 
     event releasedGpu
@@ -75,7 +76,7 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
 
     receive() external payable {}
 
-    function lockGpu(uint amount) public payable nonReentrant
+    function lockGpu(uint amount, uint chainId) public payable nonReentrant
     {
         if(!_lockGpu) revert notYetAvailable(); 
         if(msg.value != amount) revert incorrectAmount();
@@ -84,7 +85,7 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         _totalLockedAmount[msg.sender] += uint120(msg.value); 
         _lockId++; 
         _gpuLockers.push(msg.sender); 
-        emit lockedGpu(msg.sender, msg.value, lockId, block.timestamp);
+        emit lockedGpu(msg.sender, msg.value, lockId, block.timestamp, chainId);
     }
 
     /// @notice `amount` should be passed in wei

@@ -16,7 +16,7 @@ contract GpuTokenEth is ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeabl
     
     function initialize(uint120 initialAmount) public initializer 
     {
-        __ERC20_init("GPUnet", "GPU");
+        __ERC20_init("GPUNET", "GPU");
         __Ownable_init(msg.sender);
         __Pausable_init();
         __ReentrancyGuard_init();
