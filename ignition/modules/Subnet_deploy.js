@@ -1,25 +1,19 @@
 const { ethers } = require("hardhat");
-require('dotenv').config();
+require("dotenv").config();
 
-async function main()
-{
+async function main() {
   const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
-  const owner = new ethers.Wallet(process.env.OWNER_PRIVATE_KEY,provider);
+  const owner = new ethers.Wallet(process.env.OWNER_PRIVATE_KEY, provider);
 
   let updater = "0x71C1f0B4E829868626c5c16ADb09166190e7B4Bf";
 
-  const subnetFactory = await ethers.getContractFactory("Subnet"); 
-  const subnetProxy = await upgrades.deployProxy(
-    subnetFactory,
-    [
-      updater
-    ],
-    { initializer: "initialize",
-        gasPrice: ethers.parseUnits("30", "gwei"),
-// timeout: 180000, // 3 minutes in milliseconds
-// pollingInterval: 5000
-     }
-  );
+  const subnetFactory = await ethers.getContractFactory("Subnet");
+  const subnetProxy = await upgrades.deployProxy(subnetFactory, [updater], {
+    initializer: "initialize",
+    gasPrice: ethers.parseUnits("30", "gwei"),
+    // timeout: 180000, // 3 minutes in milliseconds
+    // pollingInterval: 5000
+  });
 
   const tx1 = await subnetProxy.connect(owner).setUserFunctionStatus(true, 0);
   //await tx1.wait();

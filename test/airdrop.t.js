@@ -8,13 +8,16 @@ describe("Airdrop", () => {
   let hunter2;
   let hunter3;
   before(async () => {
-    [owner, updater, hunter1,hunter2,hunter3] =
-      await ethers.getSigners();
+    [owner, updater, hunter1, hunter2, hunter3] = await ethers.getSigners();
     airdropFactory = await ethers.getContractFactory("gpuNetAirdrops");
-    airdropProxy = await upgrades.deployProxy(airdropFactory, [updater.address], {
-      initializer: "initialize",
-      from: owner.address,
-    });
+    airdropProxy = await upgrades.deployProxy(
+      airdropFactory,
+      [updater.address],
+      {
+        initializer: "initialize",
+        from: owner.address,
+      },
+    );
   });
 
   describe("Switch on all user callable functions", () => {
@@ -30,37 +33,44 @@ describe("Airdrop", () => {
     it("Should set individual airdrops", async () => {
       await airdropProxy
         .connect(updater)
-        .setAirdrop(
-          hunter1,
-          ethers.parseEther("60")
-        );
+        .setAirdrop(hunter1, ethers.parseEther("60"));
     });
 
     it("Should set batch Airdrops", async () => {
-        await airdropProxy
-          .connect(updater)
-          .setBatchAirdrop(
-            [hunter1,hunter2,hunter3],
-            [ethers.parseEther("69"),ethers.parseEther("10"),ethers.parseEther("15")]
-          );
-      });
+      await airdropProxy
+        .connect(updater)
+        .setBatchAirdrop(
+          [hunter1, hunter2, hunter3],
+          [
+            ethers.parseEther("69"),
+            ethers.parseEther("10"),
+            ethers.parseEther("15"),
+          ],
+        );
+    });
   });
 
   describe("Interact with all user callable functions", () => {
     it("Should claim Airdrops", async () => {
-        await expect(await airdropProxy._totalClaimedAirdrop(hunter1)).to.be.equals(ethers.parseEther("0"));
-        await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(ethers.parseEther("129"));
+      await expect(
+        await airdropProxy._totalClaimedAirdrop(hunter1),
+      ).to.be.equals(ethers.parseEther("0"));
+      await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(
+        ethers.parseEther("129"),
+      );
 
-        await owner.sendTransaction({
-            to: await airdropProxy.getAddress(),
-            value: ethers.parseEther("129") 
-        });
-      await airdropProxy
-        .connect(hunter1)
-        .claimAirdrops();
+      await owner.sendTransaction({
+        to: await airdropProxy.getAddress(),
+        value: ethers.parseEther("129"),
+      });
+      await airdropProxy.connect(hunter1).claimAirdrops();
 
-        await expect(await airdropProxy._totalClaimedAirdrop(hunter1)).to.be.equals(ethers.parseEther("129"));
-        await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(ethers.parseEther("0"));
+      await expect(
+        await airdropProxy._totalClaimedAirdrop(hunter1),
+      ).to.be.equals(ethers.parseEther("129"));
+      await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(
+        ethers.parseEther("0"),
+      );
     });
   });
 });
