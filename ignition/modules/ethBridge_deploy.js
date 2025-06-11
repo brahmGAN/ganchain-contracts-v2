@@ -5,7 +5,8 @@ async function main() {
   const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
   const owner = new ethers.Wallet(process.env.OWNER_PRIVATE_KEY, provider);
 
-  const relayer_shivam = "0x68da33B8FF8c61cdB427FaA25De3304a2673d302";
+  // const relayer_shivam = "0x68da33B8FF8c61cdB427FaA25De3304a2673d302";
+  const relayer_hemanth = "0xB87Be23d7F869BC7E355c1af2F6b575B854f1BB4";
 
   const gpuTokenEthFactory = await ethers.getContractFactory("GpuTokenEth");
   const gpuTokenEthProxy = await upgrades.deployProxy(
@@ -27,7 +28,7 @@ async function main() {
   const ethBridgeFactory = await ethers.getContractFactory("GpuEthBridge");
   const ethBridgeProxy = await upgrades.deployProxy(
     ethBridgeFactory,
-    [gpuTokenEthProxy.target, relayer_shivam],
+    [gpuTokenEthProxy.target, relayer_hemanth],
     {
       initializer: "initialize",
       gasPrice: ethers.parseUnits("30", "gwei"),

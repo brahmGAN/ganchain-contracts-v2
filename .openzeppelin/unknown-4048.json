@@ -15,6 +15,21 @@
       "address": "0xFE286786E94eA9a80EBd1325c1F92A37125B3227",
       "txHash": "0x21b8bce2675a73ba8047279ddeba6180718a58ffd7727c1cc7169f1f7186122a",
       "kind": "uups"
+    },
+    {
+      "address": "0xb55fDc536CfC5C3a1E4A73260A5688499482ecaf",
+      "txHash": "0xa3d813d68e0588ee1e365940e4a6c51b0da80a5e56e907b401ef728aa301850e",
+      "kind": "uups"
+    },
+    {
+      "address": "0x02c1Dc7dA808D740A32DB316BbbA4BAFEf0BCD04",
+      "txHash": "0xee00cc2bb2f5e26a44af589c2edc631787c2887c8425265f9ecfed266da1a4ad",
+      "kind": "uups"
+    },
+    {
+      "address": "0xb9DF36F053546945b6F9CCc5dfc5c49F3DAA5EEC",
+      "txHash": "0x2bcb03323c72148dfb458005f6007b85638ca1650095457d2cf78b914935cb62",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -518,6 +533,215 @@
             "numberOfBytes": "32"
           },
           "t_struct(ReentrancyGuardStorage)221_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint120)": {
+            "label": "mapping(address => uint120)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint120,t_address)": {
+            "label": "mapping(uint120 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_uint120": {
+            "label": "uint120",
+            "numberOfBytes": "15"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "560ccd062bcc877cb2891fdde5bb9379d849641b2a149e51ef5836d15e535434": {
+      "address": "0x0B41968c55145CCa1ad8f82cCA996Bf0BCbB58B8",
+      "txHash": "0x5b76f15abab1afac78c53a6668da2ab3d2b9fe08c4f012d29238b55dc1ba887f",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "_gpuLockers",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:11"
+          },
+          {
+            "label": "_releaseRecipients",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:13"
+          },
+          {
+            "label": "_lockId",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint120",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:15"
+          },
+          {
+            "label": "_releaseId",
+            "offset": 15,
+            "slot": "2",
+            "type": "t_uint120",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:17"
+          },
+          {
+            "label": "_lockedUser",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint120,t_address)",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:19"
+          },
+          {
+            "label": "_totalLockedAmount",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:21"
+          },
+          {
+            "label": "_releasedUser",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_uint120,t_address)",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:23"
+          },
+          {
+            "label": "_totalReleasedAmount",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:25"
+          },
+          {
+            "label": "_lockGpu",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_bool",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:27"
+          },
+          {
+            "label": "_isRelayer",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "GanChainBridge",
+            "src": "contracts/ganChainBridge.sol:29"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)476_storage": {
             "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
             "members": [
               {
