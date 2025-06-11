@@ -13,14 +13,7 @@ describe("Bridge:", () => {
       await ethers.getSigners();
 
     gpuTokenFactory = await ethers.getContractFactory("GpuTokenEth");
-    gpuTokenProxy = await upgrades.deployProxy(
-      gpuTokenFactory,
-      [ethers.parseEther("1000000")],
-      {
-        initializer: "initialize",
-        from: owner.address,
-      },
-    );
+    gpuTokenProxy = await gpuTokenFactory.deploy(ethers.parseEther("1000000"));
 
     ethBridgeFactory = await ethers.getContractFactory("GpuEthBridge");
     ethBridgeProxy = await upgrades.deployProxy(
@@ -171,7 +164,7 @@ describe("Bridge:", () => {
         "user 2 balance: " + (await ethers.provider.getBalance(user2.address)),
       );
       await expect(await ethers.provider.getBalance(user2.address)).to.equal(
-        ethers.parseEther("9999.999786901751551432"),
+        ethers.parseEther("9999.99979719473085713"),
       );
       console.log(
         "user2 balance:" + (await ethers.provider.getBalance(user2.address)),
@@ -180,7 +173,7 @@ describe("Bridge:", () => {
         .connect(relayer2)
         .releaseGpu(ethers.parseEther("69"), user2);
       await expect(await ethers.provider.getBalance(user2.address)).to.equal(
-        ethers.parseEther("10068.999786901751551432"),
+        ethers.parseEther("10068.99979719473085713"),
       );
       await expect(
         await ganBridgeProxy._totalReleasedAmount(user2.address),
