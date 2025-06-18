@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";  
-import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol"; 
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
 /**
  * @title GPUVault
  * @dev Enhanced vault contract for native GPU tokens with cross-user trading support
  * Handles deposits, locking, unlocking, withdrawals, and cross-user balance transfers
  */
-contract GPUVault is Ownable, ReentrancyGuard, Pausable {
+contract GPUVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, UUPSUpgradeable {
 
     // User balances
     mapping(address => uint256) public lockedBalances; 
@@ -38,8 +39,18 @@ contract GPUVault is Ownable, ReentrancyGuard, Pausable {
         _;
     }
 
-    constructor() Ownable(msg.sender) {
-        // No token address needed for native tokens
+    // constructor() Ownable(msg.sender) {
+    //     // No token address needed for native tokens
+    // }
+
+    /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    
+    function initialize() public initializer { 
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+        __ReentrancyGuard_init();
+        __Pausable_init();
     }
 
     /**
