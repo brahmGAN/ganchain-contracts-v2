@@ -22,3 +22,9 @@ deploy-ganchainBridge:
 
 deploy-ethBridge: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/ethBridge_deploy.js --network sepolia
+
+deploy-gpuVault: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/GPUVault_deploy.js --network gpu
+
+deploy-usdtVault: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/USDTVault.js --network sepolia
