@@ -31,22 +31,22 @@ contract MockUSDT is ERC20, Ownable {
     }
 }
 
-/**
- * @title MockGPU
- * @dev Mock GPU token for testing (18 decimals - standard)
- */
-contract MockGPU is ERC20, Ownable {
-    constructor(address initialOwner) ERC20("Mock GPU Token", "GPU") Ownable(initialOwner) {  // ← FIXED
-        _mint(initialOwner, 1000000 * 10**18); // Mint 1M GPU tokens to owner
-    }
+// /**
+//  * @title MockGPU
+//  * @dev Mock GPU token for testing (18 decimals - standard)
+//  */
+// contract MockGPU is ERC20, Ownable {
+//     constructor(address initialOwner) ERC20("Mock GPU Token", "GPU") Ownable(initialOwner) {  // ← FIXED
+//         _mint(initialOwner, 1000000 * 10**18); // Mint 1M GPU tokens to owner
+//     }
 
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
-    }
+//     function mint(address to, uint256 amount) external onlyOwner {
+//         _mint(to, amount);
+//     }
 
-    // Faucet for easy testing
-    function faucet(uint256 amount) external {
-        require(amount <= 1000 * 10**18, "MockGPU: Max 1,000 GPU per request");
-        _mint(msg.sender, amount);
-    }
-}
+//     // Faucet for easy testing
+//     function faucet(uint256 amount) external {
+//         require(amount <= 1000 * 10**18, "MockGPU: Max 1,000 GPU per request");
+//         _mint(msg.sender, amount);
+//     }
+// }
