@@ -154,7 +154,9 @@ contract USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUp
         validAmount(amount) 
     {
         require(unlockedBalances[msg.sender] >= amount, "USDTVault: Insufficient unlocked balance");
-        
+        //todo: check if contract has been approved by the msg.sender 
+        //todo: check if the contract has enough balance.  
+            
         unlockedBalances[msg.sender] -= amount;
         usdtToken.safeTransfer(msg.sender, amount);
         

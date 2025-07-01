@@ -144,7 +144,7 @@ contract GPUVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpg
         validAmount(amount) 
     {
         require(unlockedBalances[msg.sender] >= amount, "GPUVault: Insufficient unlocked balance");
-        
+        //todo: ensure there's sufficient contract balance
         unlockedBalances[msg.sender] -= amount;
         
         // Transfer native tokens back to user
