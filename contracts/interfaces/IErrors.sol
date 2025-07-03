@@ -136,4 +136,8 @@ interface IErrors
   error exceedesMaxLimit();
 
   error ContractIsNotApproved();
+
+  error invalidSS58Address();
+
+  error invalidFundsHandlerAddress();
 }
