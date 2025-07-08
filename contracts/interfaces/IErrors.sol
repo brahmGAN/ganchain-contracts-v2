@@ -140,4 +140,7 @@ interface IErrors
   error NotTheTokenOwner();
 
   error InsufficientUnlockedBalance();
+  error invalidSS58Address();
+
+  error invalidFundsHandlerAddress();
 }
