@@ -15,13 +15,15 @@ contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpg
     uint120[] public _tokenId; 
 
     // User balances
-    mapping(address => uint256) public lockedBalances; 
     mapping(address => uint256) public unlockedBalances;
     uint256 public totalDeposited; 
 
     // Authorized orderbook service address
-    address public orderbookAddress;
+    address public orderbookHandler;
 
+    bool public deposit; 
+
+    bool  public withdraw; 
     
     // Events
     event Deposit(address indexed user, uint256 amount, uint256 timestamp);
@@ -29,10 +31,11 @@ contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpg
     event Withdraw(address indexed user, uint256 amount, uint256 timestamp);
     event OrderbookUpdated(address indexed oldOrderbook, address indexed newOrderbook);
     event LockedTransfer(address indexed from, address indexed to, uint256 amount, uint256 timestamp);
+    event setLockStatusAt(uint indexed lock,bool status,uint timestamp);
 
     // Modifiers
-    modifier onlyOrderbook() {
-        require(msg.sender == orderbookAddress, "GPUVault: Only Orderbook can call this");
+    modifier onlyOrderbookHandler() {
+        require(msg.sender == orderbookHandler, "GPUVault: Only Orderbook handler can call this");
         _;
     } 
     
@@ -49,14 +52,14 @@ contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpg
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         _ganNode = IERC721(ganNode);
-        orderbookAddress = orderBook; 
+        orderbookHandler = orderBook; 
     }
 
-    function deposit(uint quantity,uint120[] memory tokenId) external nonReentrant validAmount(quantity)
+    function depositNode(uint quantity,uint120[] memory tokenId) external nonReentrant validAmount(quantity)
     {
+        if(!deposit) revert notYetAvailable();
         if(quantity != tokenId.length) revert incorrectArraySize();
         if(!_ganNode.isApprovedForAll(msg.sender, address(this))) revert contractNotApproved();
-        lockedBalances[msg.sender] += quantity;
         totalDeposited += quantity;
         for(uint i=0; i < quantity; i++) 
         {
@@ -68,69 +71,29 @@ contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpg
         emit Deposit(msg.sender, quantity, block.timestamp);
     }
 
-    function unlock(address user, uint256 amount) external onlyOrderbook validAmount(amount) 
+    function unlock(address user, uint256 amount) external onlyOrderbookHandler validAmount(amount) 
     {
-        require(lockedBalances[user] >= amount, "GAN-Node Vault: Insufficient locked balance");
-        
-        lockedBalances[user] -= amount;
         unlockedBalances[user] += amount;
         emit Unlock(user, amount, block.timestamp);
     }
 
     /**
-     * @dev Transfer locked balance from one user to another (for cross-chain trading)
-     * This enables User A's deposit to be withdrawn by User B after a trade
-     * @param from User who is trading away their tokens
-     * @param to User who is receiving the tokens  
-     * @param amount Amount to transfer
-     */
-    function transferLocked(address from, address to, uint256 amount) external onlyOrderbook validAmount(amount) 
-    {
-        require(from != to, "GAN-Node Vault: Cannot transfer to self");
-        require(lockedBalances[from] >= amount, "GAN-Node Vault: Insufficient locked balance");
-        
-        // Move locked balance from one user to another
-        lockedBalances[from] -= amount;
-        lockedBalances[to] += amount;
-        
-        emit LockedTransfer(from, to, amount, block.timestamp);
-    }
-
-    /**
-     * @dev Combined transfer and unlock in one transaction (gas optimization)
-     * Transfers locked balance from one user to another and immediately unlocks it
-     * @param from User who is trading away their tokens
-     * @param to User who will receive unlocked tokens
-     * @param amount Amount to transfer and unlock
-     */
-    function transferAndUnlock(address from, address to, uint256 amount) external onlyOrderbook validAmount(amount) 
-    {
-        require(from != to, "GAN-Node Vault: Cannot transfer to self");
-        require(lockedBalances[from] >= amount, "GPUVault: Insufficient locked balance");
-        
-        // Move locked balance from sender to receiver's unlocked balance
-        lockedBalances[from] -= amount;
-        unlockedBalances[to] += amount;
-        
-        emit LockedTransfer(from, to, amount, block.timestamp);
-        emit Unlock(to, amount, block.timestamp);
-    }
-
-    //todo
-    /**
      * @dev Withdraw unlocked native GPU tokens
      * @param amount Amount to withdraw
      */
-    function withdraw(uint256 amount) external nonReentrant validAmount(amount) 
+    function withdrawNode(uint amount) external nonReentrant validAmount(amount) 
     {
-        require(unlockedBalances[msg.sender] >= amount, "GAN-Node Vault: Insufficient unlocked balance");
-        if(_ganNode.balanceOf(address(this)) < amount) revert inSufficientBalanceInContract();
+        if(!withdraw) revert notYetAvailable();
+        if(amount > unlockedBalances[msg.sender]) revert InsufficientUnlockedBalance();
+        if(amount > _ganNode.balanceOf(address(this)) || amount > _tokenId.length) revert inSufficientBalanceInContract();
 
         unlockedBalances[msg.sender] -= amount;
         
-        for(uint i = _tokenId.length-1; i >= amount; i--)
+        for(uint i = 0; i < amount; i++)
         {
-            _ganNode.safeTransferFrom(address(this), msg.sender, _tokenId[i]);
+            uint tokenIndex = _tokenId.length - 1;
+            _ganNode.safeTransferFrom(address(this), msg.sender, _tokenId[tokenIndex]);
+            _tokenId.pop(); 
         }
         
         emit Withdraw(msg.sender, amount, block.timestamp);
@@ -138,15 +101,33 @@ contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpg
 
     /**
      * @dev Set orderbook service address (only owner can call)
-     * @param _orderbook Address of the orderbook service wallet
+     * @param _orderbookHandler Address of the orderbook service wallet
      */
-    function setOrderbook(address _orderbook) external onlyOwner 
+    function setOrderbook(address _orderbookHandler) external onlyOwner 
     {
-        require(_orderbook != address(0), "GPUVault: Invalid orderbook address");
+        require(_orderbookHandler != address(0), "GPUVault: Invalid orderbook address");
         
-        address oldOrderbook = orderbookAddress;
-        orderbookAddress = _orderbook;
+        address oldOrderbook = orderbookHandler;
+        orderbookHandler = _orderbookHandler;
         
-        emit OrderbookUpdated(oldOrderbook, _orderbook);
+        emit OrderbookUpdated(oldOrderbook, _orderbookHandler);
+    }
+
+    function setLockStatus(bool status, uint lock) public onlyOwner
+    {
+        if(lock == 0)
+        {
+            deposit = status; 
+        }
+        else if(lock == 1)
+        {
+            withdraw = status; 
+        }
+        else
+        {
+            revert wrongFunctionType();
+        }
+
+        emit setLockStatusAt(lock, status, block.timestamp);
     }
 }
