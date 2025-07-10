@@ -81,9 +81,9 @@ contract GPUVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgrade
      * @param user User address to unlock funds for
      * @param amount Amount to unlock
      */
-    function unlock(address user, uint256 amount) external onlyOrderbook validAmount(amount) 
+    function unlock(address user, uint120 amount) external onlyOrderbook validAmount(amount) 
     {
-        unlockedBalances[user] += uint120(amount);
+        unlockedBalances[user] += amount;
         emit Unlock(user, amount, block.timestamp);
     }
 
