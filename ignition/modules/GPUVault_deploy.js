@@ -2,13 +2,15 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
-  const provider = new ethers.JsonRpcProvider(process.env.GPU_RPC);
-  const shared_deployer = new ethers.Wallet(process.env.SHARED_DEPLOYER, provider);
+  // const provider = new ethers.JsonRpcProvider(process.env.GPU_RPC);
+  // const shared_deployer = new ethers.Wallet(process.env.SHARED_DEPLOYER, provider);
+
+  const orderBookHandlerRandall = "0x9aA81e452e764791B72dc3aE97F8Ffb32324E9A8";
 
   const gpuVaultFactory = await ethers.getContractFactory("GPUVault");
   const gpuVaultProxy = await upgrades.deployProxy(
     gpuVaultFactory,
-    [],
+    [orderBookHandlerRandall],
     {
       initializer: "initialize",
       gasPrice: ethers.parseUnits("30", "gwei"),
