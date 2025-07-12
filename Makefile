@@ -31,3 +31,6 @@ deploy-GANNodeVault:
 
 deploy-usdtVault: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/USDTVault.js --network sepolia
+
+clean: 
+	npx hardhat clean

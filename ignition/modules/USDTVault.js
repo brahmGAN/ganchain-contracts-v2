@@ -2,8 +2,6 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
-  const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
-  const shared_deployer = new ethers.Wallet(process.env.SHARED_DEPLOYER, provider);
 
   const shared_deployed_public = "0x898345e0b70D7fcC8e7227B444DEc90b1154DFa5";
   const mockUsdtFactory = await ethers.getContractFactory("MockUSDT");
