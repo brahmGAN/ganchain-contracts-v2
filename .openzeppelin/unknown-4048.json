@@ -50,6 +50,11 @@
       "address": "0x11733F474Ae0e868D511d48309d3B35846f47415",
       "txHash": "0x8c174c05af106692fab859ef3d8befc23edbacbe75a98d1372124c45ea09623d",
       "kind": "uups"
+    },
+    {
+      "address": "0xb31c33F9F3A0b7340FEE831EF8b908998af7C9df",
+      "txHash": "0x528fddb09a72855295a89671ef310f43899a075cd2688f84c8711875055d6d9f",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -1297,6 +1302,187 @@
           "t_uint64": {
             "label": "uint64",
             "numberOfBytes": "8"
+          },
+          "t_mapping(t_address,t_uint120)": {
+            "label": "mapping(address => uint120)",
+            "numberOfBytes": "32"
+          },
+          "t_uint120": {
+            "label": "uint120",
+            "numberOfBytes": "15"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "6aef50c37e1cdffe21cd2218727bfe2bad2155b2cddc5105890f943c5af59c67": {
+      "address": "0x6fcd5577DAE7FDd1777e23bD46Ae33f22A06Ef64",
+      "txHash": "0xbfef2acaa52eb61849dceed379e8f6a8925d20915289bbc007ab565d0d3be24d",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "_ganNode",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IERC721)3645",
+            "contract": "GANNodeVault",
+            "src": "contracts/GANNodeVault.sol:13"
+          },
+          {
+            "label": "_tokenId",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint120)dyn_storage",
+            "contract": "GANNodeVault",
+            "src": "contracts/GANNodeVault.sol:15"
+          },
+          {
+            "label": "_unlockedBalances",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "GANNodeVault",
+            "src": "contracts/GANNodeVault.sol:18"
+          },
+          {
+            "label": "_totalDeposited",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint120",
+            "contract": "GANNodeVault",
+            "src": "contracts/GANNodeVault.sol:19"
+          },
+          {
+            "label": "_orderbookHandler",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_address",
+            "contract": "GANNodeVault",
+            "src": "contracts/GANNodeVault.sol:22"
+          },
+          {
+            "label": "_deposit",
+            "offset": 20,
+            "slot": "4",
+            "type": "t_bool",
+            "contract": "GANNodeVault",
+            "src": "contracts/GANNodeVault.sol:24"
+          },
+          {
+            "label": "_withdraw",
+            "offset": 21,
+            "slot": "4",
+            "type": "t_bool",
+            "contract": "GANNodeVault",
+            "src": "contracts/GANNodeVault.sol:26"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)221_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_uint120)dyn_storage": {
+            "label": "uint120[]",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IERC721)3645": {
+            "label": "contract IERC721",
+            "numberOfBytes": "20"
           },
           "t_mapping(t_address,t_uint120)": {
             "label": "mapping(address => uint120)",
