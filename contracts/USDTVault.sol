@@ -64,6 +64,7 @@ contract USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgrad
      */
     function depositUsdt(uint120 amount) external nonReentrant validAmount(amount)
     {
+        //todo:add lock
         if(usdtToken.allowance(msg.sender, address(this)) < amount) revert ContractIsNotApproved();
         usdtToken.safeTransferFrom(msg.sender, address(this), amount);
 
@@ -90,6 +91,7 @@ contract USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgrad
      */
     function withdrawUsdt(uint120 amount) external nonReentrant validAmount(amount) 
     {
+        //todo:add lock
         if(amount > unlockedBalances[msg.sender]) revert InsufficientUnlockedBalance();
         if(amount > usdtToken.balanceOf(address(this))) revert inSufficientBalanceInContract();
             
