@@ -65,7 +65,7 @@ contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpg
         {
             if(_ganNode.ownerOf(tokenId[i]) != msg.sender) revert NotTheTokenOwner();
             _tokenId.push(tokenId[i]);
-            _ganNode.safeTransferFrom(msg.sender, address(this), tokenId[i]);
+            _ganNode.transferFrom(msg.sender, address(this), tokenId[i]);
         }
 
         emit Deposit(msg.sender, quantity, block.timestamp);
