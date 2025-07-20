@@ -3,13 +3,15 @@ require("dotenv").config();
 
 async function main() {
   const shared_deployed_public = "0x898345e0b70D7fcC8e7227B444DEc90b1154DFa5";
+  const orderBookHandlerRandall = "0x9aA81e452e764791B72dc3aE97F8Ffb32324E9A8";
+
   const mockUsdtFactory = await ethers.getContractFactory("MockUSDT");
   const mockUsdt = await mockUsdtFactory.deploy(shared_deployed_public);
 
   const usdtVaultFactory = await ethers.getContractFactory("USDTVault");
   const usdtVaultProxy = await upgrades.deployProxy(
     usdtVaultFactory,
-    [mockUsdt.target],
+    [mockUsdt.target, orderBookHandlerRandall],
     {
       initializer: "initialize",
       gasPrice: ethers.parseUnits("30", "gwei"),
