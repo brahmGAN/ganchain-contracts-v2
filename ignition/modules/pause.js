@@ -13,7 +13,7 @@ async function main() {
   const gpuToken = await ethers.getContractAt(
     "GpuTokenEth",
     contractAddress,
-    owner,
+    owner
   );
 
   console.log("Pausing transfers...");

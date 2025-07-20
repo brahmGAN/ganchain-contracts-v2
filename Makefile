@@ -34,3 +34,6 @@ deploy-usdtVault:
 
 clean: 
 	npx hardhat clean
+
+pretty: 
+	npx prettier --write "**/*.js"

@@ -2,7 +2,6 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
-
   const shared_deployed_public = "0x898345e0b70D7fcC8e7227B444DEc90b1154DFa5";
   const mockUsdtFactory = await ethers.getContractFactory("MockUSDT");
   const mockUsdt = await mockUsdtFactory.deploy(shared_deployed_public);
@@ -16,7 +15,7 @@ async function main() {
       gasPrice: ethers.parseUnits("30", "gwei"),
       // timeout: 180000, // 3 minutes in milliseconds
       // pollingInterval: 5000
-    },
+    }
   );
 
   console.log("mock USDT deployed at:", mockUsdt.target);

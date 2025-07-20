@@ -17,7 +17,7 @@ async function main() {
       gasPrice: ethers.parseUnits("30", "gwei"),
       // timeout: 180000, // 3 minutes in milliseconds
       // pollingInterval: 5000
-    },
+    }
   );
 
   //   const tx1 = await subnetProxy.connect(owner).setUserFunctionStatus(true, 0);
@@ -34,7 +34,7 @@ async function main() {
       gasPrice: ethers.parseUnits("30", "gwei"),
       // timeout: 180000, // 3 minutes in milliseconds
       // pollingInterval: 5000
-    },
+    }
   );
 
   const tx1 = await ethBridgeProxy.connect(owner).setLockStatus(true, 0);

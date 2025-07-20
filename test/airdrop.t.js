@@ -16,7 +16,7 @@ describe("Airdrop", () => {
       {
         initializer: "initialize",
         from: owner.address,
-      },
+      }
     );
   });
 
@@ -45,7 +45,7 @@ describe("Airdrop", () => {
             ethers.parseEther("69"),
             ethers.parseEther("10"),
             ethers.parseEther("15"),
-          ],
+          ]
         );
     });
   });
@@ -53,10 +53,10 @@ describe("Airdrop", () => {
   describe("Interact with all user callable functions", () => {
     it("Should claim Airdrops", async () => {
       await expect(
-        await airdropProxy._totalClaimedAirdrop(hunter1),
+        await airdropProxy._totalClaimedAirdrop(hunter1)
       ).to.be.equals(ethers.parseEther("0"));
       await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(
-        ethers.parseEther("129"),
+        ethers.parseEther("129")
       );
 
       await owner.sendTransaction({
@@ -66,10 +66,10 @@ describe("Airdrop", () => {
       await airdropProxy.connect(hunter1).claimAirdrops();
 
       await expect(
-        await airdropProxy._totalClaimedAirdrop(hunter1),
+        await airdropProxy._totalClaimedAirdrop(hunter1)
       ).to.be.equals(ethers.parseEther("129"));
       await expect(await airdropProxy._airdrop(hunter1)).to.be.equals(
-        ethers.parseEther("0"),
+        ethers.parseEther("0")
       );
     });
   });

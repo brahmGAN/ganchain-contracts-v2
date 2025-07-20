@@ -17,7 +17,7 @@ describe("Providers", () => {
       {
         initializer: "initialize",
         from: owner.address,
-      },
+      }
     );
   });
 
@@ -25,7 +25,7 @@ describe("Providers", () => {
     it("Should switch on every user functions", async () => {
       //_registerProvider
       await expect(await providersProxy._registerProvider()).to.be.equals(
-        false,
+        false
       );
       await providersProxy.connect(updater).setLockStatus(true, 0);
       await expect(await providersProxy._registerProvider()).to.be.equals(true);
@@ -54,7 +54,7 @@ describe("Providers", () => {
             ethers.parseEther("9"),
             ethers.parseEther("10"),
             ethers.parseEther("15"),
-          ],
+          ]
         );
     });
   });
@@ -64,17 +64,17 @@ describe("Providers", () => {
       await providersProxy.connect(provider1).registerProvider();
 
       await expect(await providersProxy._registered(provider1)).to.be.equals(
-        true,
+        true
       );
     });
 
     it("Should claim all rewards", async () => {
       await expect(
-        await providersProxy._pendingRewards(provider1),
+        await providersProxy._pendingRewards(provider1)
       ).to.be.equals(ethers.parseEther("69"));
 
       await expect(
-        await ethers.provider.getBalance(await providersProxy.getAddress()),
+        await ethers.provider.getBalance(await providersProxy.getAddress())
       ).to.be.equals(ethers.parseEther("0"));
 
       await owner.sendTransaction({
@@ -83,23 +83,23 @@ describe("Providers", () => {
       });
 
       await expect(
-        await ethers.provider.getBalance(await providersProxy.getAddress()),
+        await ethers.provider.getBalance(await providersProxy.getAddress())
       ).to.be.equals(ethers.parseEther("100"));
 
       await providersProxy.connect(provider1).claimAllRewards();
 
       await expect(
-        await ethers.provider.getBalance(await providersProxy.getAddress()),
+        await ethers.provider.getBalance(await providersProxy.getAddress())
       ).to.be.equals(ethers.parseEther("31"));
 
       await expect(
-        await providersProxy._pendingRewards(provider1),
+        await providersProxy._pendingRewards(provider1)
       ).to.be.equals(0);
     });
 
     it("Should claim dynamic rewards", async () => {
       await expect(
-        await providersProxy._pendingRewards(provider3),
+        await providersProxy._pendingRewards(provider3)
       ).to.be.equals(ethers.parseEther("15"));
 
       await providersProxy
@@ -107,7 +107,7 @@ describe("Providers", () => {
         .claimRewards(ethers.parseEther("9"));
 
       await expect(
-        await providersProxy._pendingRewards(provider3),
+        await providersProxy._pendingRewards(provider3)
       ).to.be.equals(ethers.parseEther("6"));
     });
   });
