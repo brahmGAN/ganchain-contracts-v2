@@ -21,15 +21,19 @@ describe("GPUVault", () => {
     it("Should switch on every user functions", async () => {
         await GPUVaultProxy.connect(owner).setLockStatus(true,0);
         console.log("Contract balance before:"+await ethers.provider.getBalance(GPUVaultProxy.target));
-        await GPUVaultProxy.connect(user1).depositGpu({value:ethers.parseEther("0.01")});
+        await GPUVaultProxy.connect(user1).depositGpu({value:ethers.parseEther("5")});
         console.log("Total deposited: "+await GPUVaultProxy.totalDeposited());
-        // console.log("Contract balance After:"+await ethers.provider.getBalance(GPUVaultProxy.target));
-        // await GPUVaultProxy.connect(orderBookHandler).unlock(user2,ethers.parseEther("5"));
-        // console.log("user2 unlocked balance before:"+await GPUVaultProxy.unlockedBalances(user2.address));
-        // await GPUVaultProxy.connect(owner).setLockStatus(true,1);
-        // await GPUVaultProxy.connect(user2).withdrawGpu(ethers.parseEther("2"));
-        // console.log("user2 unlocked balance after:"+await GPUVaultProxy.unlockedBalances(user2.address));
-        // await GPUVaultProxy.connect(user2).withdrawGpu(ethers.parseEther("3"));
+        console.log("Contract balance After:"+await ethers.provider.getBalance(GPUVaultProxy.target));
+        await GPUVaultProxy.connect(orderBookHandler).unlock(user2,ethers.parseEther("6"));
+        console.log("user2 unlocked balance before:"+await GPUVaultProxy.unlockedBalances(user2.address));
+        await GPUVaultProxy.connect(owner).setLockStatus(true,1);
+        await expect(GPUVaultProxy.connect(user2).withdrawGpu(ethers.parseEther("100"))).to. 
+        be.revertedWithCustomError(GPUVaultProxy,"InsufficientUnlockedBalance");
+        await GPUVaultProxy.connect(user2).withdrawGpu(ethers.parseEther("2"));
+        console.log("user2 unlocked balance after:"+await GPUVaultProxy.unlockedBalances(user2.address));
+        await GPUVaultProxy.connect(user2).withdrawGpu(ethers.parseEther("3"));
+        await expect(GPUVaultProxy.connect(user2).withdrawGpu(ethers.parseEther("1"))).to. 
+        be.revertedWithCustomError(GPUVaultProxy,"inSufficientBalanceInContract");
     });
   });
 
