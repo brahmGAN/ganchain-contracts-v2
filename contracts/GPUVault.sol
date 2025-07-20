@@ -13,12 +13,10 @@ import "./interfaces/IErrors.sol";
  */
 contract GPUVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors 
 {
-    // User balances
     mapping(address => uint120) public unlockedBalances;
 
     uint120 public totalDeposited; 
 
-    // Authorized orderbook service address
     address public orderbookHandler;
 
     bool public deposit; 

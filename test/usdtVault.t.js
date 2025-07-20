@@ -13,7 +13,7 @@ describe("USDTVault", () => {
     mockUsdt = await mockUsdtFactory.deploy(owner.address);
 
     usdtVaultFactory = await ethers.getContractFactory("USDTVault");
-    usdtVaultProxy = await upgrades.deployProxy(usdtVaultFactory, [mockUsdt.target], {
+    usdtVaultProxy = await upgrades.deployProxy(usdtVaultFactory, [mockUsdt.target,orderBookHandler.address], {
       initializer: "initialize",
       from: owner.address,
     });
@@ -24,9 +24,10 @@ describe("USDTVault", () => {
         console.log("owner balance before: "+await mockUsdt.balanceOf(owner.address));
         console.log("Contract balance before: "+await mockUsdt.balanceOf(usdtVaultProxy.target));
         await mockUsdt.connect(owner).approve(usdtVaultProxy.target,69 * 10**6);
+        await usdtVaultProxy.connect(owner).setLockStatus(true,0);
+        await usdtVaultProxy.connect(owner).setLockStatus(true,1);
         await usdtVaultProxy.connect(owner).depositUsdt(69 * 10**6);
         console.log("Contract balance after: "+await mockUsdt.balanceOf(usdtVaultProxy.target));
-        await usdtVaultProxy.connect(owner).setOrderbook(orderBookHandler);
         await usdtVaultProxy.connect(orderBookHandler).unlock(user2,7 * 10**6); 
         await usdtVaultProxy.connect(user2).withdrawUsdt(1 * 10**6);
         console.log("Contract balance third: "+await mockUsdt.balanceOf(usdtVaultProxy.target));

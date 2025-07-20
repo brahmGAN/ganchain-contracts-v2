@@ -14,11 +14,10 @@ contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpg
 
     uint120[] public _tokenId; 
 
-    // User balances
     mapping(address => uint120) public _unlockedBalances;
+    
     uint120 public _totalDeposited; 
 
-    // Authorized orderbook service address
     address public _orderbookHandler;
 
     bool public _deposit; 

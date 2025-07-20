@@ -19,9 +19,7 @@ contract USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgrad
     
     IERC20 public usdtToken;
 
-    // User balances
     uint120 public totalDeposited; 
-    // Authorized orderbook service address
     address public orderbookHandler;
     bool public _deposit; 
     bool public _withdraw;
@@ -50,38 +48,37 @@ contract USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgrad
     /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
     
-    function initialize(address _usdtToken) public initializer { 
+    function initialize(address _usdtToken, address _orderbookHandler) public initializer { 
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         require(_usdtToken != address(0), "USDTVault: invalid USDT token address");
         usdtToken = IERC20(_usdtToken);
+        orderbookHandler = _orderbookHandler;
     }
 
     /**
      * @dev Deposit USDT tokens to the vault
+     * @dev Pass the amount as the (decimal value * 10**6)
      * @param amount Amount of USDT to deposit
      */
     function depositUsdt(uint120 amount) external nonReentrant validAmount(amount)
     {
-        //todo:add lock
+        if(!_deposit) revert notYetAvailable();
         if(usdtToken.allowance(msg.sender, address(this)) < amount) revert ContractIsNotApproved();
-        usdtToken.safeTransferFrom(msg.sender, address(this), amount);
-
         totalDeposited += amount;
-
+        usdtToken.safeTransferFrom(msg.sender, address(this), amount);
         emit Deposit(msg.sender, amount, block.timestamp);
     }
 
     /**
      * @dev Unlock tokens for withdrawal (standard unlock).Amount is passed in wei
      * @param user User address to unlock funds for
-     * @param amount Amount to unlock
+     * @param amount Amount to unlock: Pass the amount as the (decimal value * 10**6)
      */
     function unlock(address user, uint120 amount) external onlyOrderbook validAmount(amount) 
     {   
         unlockedBalances[user] += amount;
-        
         emit Unlock(user, amount, block.timestamp);
     }
 
@@ -91,13 +88,11 @@ contract USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgrad
      */
     function withdrawUsdt(uint120 amount) external nonReentrant validAmount(amount) 
     {
-        //todo:add lock
+        if(!_withdraw) revert notYetAvailable();
         if(amount > unlockedBalances[msg.sender]) revert InsufficientUnlockedBalance();
         if(amount > usdtToken.balanceOf(address(this))) revert inSufficientBalanceInContract();
-            
         unlockedBalances[msg.sender] -= amount;
         usdtToken.safeTransfer(msg.sender, amount);
-        
         emit Withdraw(msg.sender, amount, block.timestamp);
     }
 
