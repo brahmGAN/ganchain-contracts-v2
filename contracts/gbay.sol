@@ -1,0 +1,146 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.28;
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol"; 
+import "./interfaces/IErrors.sol"; 
+
+contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors 
+{
+    event orderCreated
+    (
+        address indexed seller, 
+        uint120 indexed orderId, 
+        uint120 indexed amount
+    );
+
+    event orderEscrowed 
+    (
+        address indexed buyer, 
+        uint120 indexed orderId, 
+        uint120 indexed amount
+    );
+
+    event orderCancelled 
+    (
+        address indexed buyer, 
+        uint120 indexed orderId, 
+        uint120 indexed amount
+    );
+
+    event orderCompleted 
+    (
+        address indexed seller, 
+        address indexed buyer, 
+        uint120 indexed orderId, 
+        uint120 amount 
+    );
+
+    enum orderStatus 
+    {
+        orderCreated, 
+        orderInProgress, 
+        orderCompleted 
+    }
+
+    uint120 public _orderId; 
+    address public _escrowHandler; 
+    mapping(uint120 => uint120) public _orderAmount; 
+    mapping(uint120 => address) public _seller; 
+    mapping(uint120 => address) public _buyer; 
+    mapping(uint120 => orderStatus) public _orderStatus; 
+
+    modifier onlyEscrowHandler 
+    {
+        if(msg.sender != _escrowHandler) revert UnauthorizedEscrowHandler();
+        _;
+    }
+
+    /// @dev Authorizes the upgrade to a new implementation. Only callable by the owner.
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    
+    function initialize(address escrowHandler) public initializer 
+    { 
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+        _escrowHandler = escrowHandler; 
+    }
+
+    receive() external payable {}
+
+    /// @dev amount must be passed in wei
+    function createOrder(uint120 amount) public 
+    {
+        uint120 orderId = _orderId; 
+        _orderAmount[orderId] = amount; 
+        _seller[orderId] = msg.sender; 
+        _orderStatus[orderId] = orderStatus.orderCreated; 
+        _orderId++; 
+        emit orderCreated(msg.sender, orderId, amount);
+    }
+
+    function buyOrderEscrow(uint120 orderId) public payable 
+    {
+        if(msg.value != _orderAmount[orderId]) revert incorrectAmount(); 
+        if(_orderStatus[orderId] == orderStatus.orderInProgress) revert BuyerAlreadyPresent();
+        _buyer[orderId] = msg.sender; 
+        _orderStatus[orderId] = orderStatus.orderInProgress; 
+        emit orderEscrowed(msg.sender, orderId, uint120(msg.value));
+    }
+
+    function cancelBuyOrder(uint120 orderId) public 
+    {
+        if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
+        uint120 amount = _orderAmount[orderId];
+        _buyer[orderId] = address(0);
+        _orderStatus[orderId] = orderStatus.orderCreated; 
+        (bool success,) = payable(msg.sender).call{value:amount}("");
+        if(!success) revert TransferFailed(); 
+        emit orderCancelled(msg.sender, orderId, amount);
+    }
+
+    function buyerConfirmAndRelease(uint120 orderId) public 
+    {
+        if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
+        if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
+        uint120 amount = _orderAmount[orderId];
+        address seller = _seller[orderId]; 
+        if(amount > address(this).balance) revert inSufficientBalanceInContract(); 
+        _orderStatus[orderId] = orderStatus.orderCompleted; 
+        (bool success,) = payable(seller).call{value:amount}(""); 
+        if(!success) revert TransferFailed();
+        emit orderCompleted(seller, _buyer[orderId], orderId, amount);
+    }
+
+    function releaseAmount(uint120 orderId) public onlyEscrowHandler
+    {
+        if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
+        uint120 amount = _orderAmount[orderId];
+        address seller = _seller[orderId]; 
+        if(amount > address(this).balance) revert inSufficientBalanceInContract(); 
+        _orderStatus[orderId] = orderStatus.orderCompleted; 
+        (bool success,) = payable(seller).call{value:amount}(""); 
+        if(!success) revert TransferFailed();
+        emit orderCompleted(seller, _buyer[orderId], orderId, amount);
+    }
+    //todo receive onchain products 
+    
+    // function setLockStatus(bool status, uint lock) public onlyOwner
+    // {
+    //     if(lock == 0)
+    //     {
+    //          = status; 
+    //     }
+    //     else if(lock == 1)
+    //     {
+    //          = status; 
+    //     }
+    //     else
+    //     {
+    //         revert wrongFunctionType();
+    //     }
+
+    //     emit setLockStatusAt(lock, status, block.timestamp);
+    // }
+}

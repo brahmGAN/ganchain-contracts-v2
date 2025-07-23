@@ -140,7 +140,16 @@ interface IErrors
   error NotTheTokenOwner();
 
   error InsufficientUnlockedBalance();
+
   error invalidSS58Address();
 
-  error invalidFundsHandlerAddress();
+  error invalidFundsHandlerAddress(); 
+
+  error BuyerAlreadyPresent();
+
+  error UnauthorizedEscrowHandler(); 
+
+  error OrderNotInProgess(); 
+
+  error NotTheBuyer(); 
 }
