@@ -145,11 +145,11 @@ interface IErrors
 
   error invalidFundsHandlerAddress(); 
 
-  error BuyerAlreadyPresent();
-
   error UnauthorizedEscrowHandler(); 
 
   error OrderNotInProgess(); 
 
   error NotTheBuyer(); 
+
+  error BuyerPresentOrOrderCompleted();
 }

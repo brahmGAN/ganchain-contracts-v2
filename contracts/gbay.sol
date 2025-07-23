@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol"; 
 import "./interfaces/IErrors.sol"; 
 
-contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors 
+contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors, ERC721HolderUpgradeable
 {
     event orderCreated
     (
@@ -80,10 +83,20 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCreated(msg.sender, orderId, amount);
     }
 
-    function buyOrderEscrow(uint120 orderId) public payable 
+    function sellNft(address nftAddress,uint120 amount) public 
+    {
+        uint120 orderId = _orderId; 
+        _orderAmount[orderId] = amount; 
+        _seller[orderId] = msg.sender; 
+        _orderStatus[orderId] = orderStatus.orderCreated; 
+        _orderId++; 
+        emit orderCreated(msg.sender, orderId, amount);
+    }
+
+    function buyerDepositToEscrow(uint120 orderId) public payable 
     {
         if(msg.value != _orderAmount[orderId]) revert incorrectAmount(); 
-        if(_orderStatus[orderId] == orderStatus.orderInProgress) revert BuyerAlreadyPresent();
+        if(_orderStatus[orderId] != orderStatus.orderCreated) revert BuyerPresentOrOrderCompleted();
         _buyer[orderId] = msg.sender; 
         _orderStatus[orderId] = orderStatus.orderInProgress; 
         emit orderEscrowed(msg.sender, orderId, uint120(msg.value));
@@ -100,7 +113,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCancelled(msg.sender, orderId, amount);
     }
 
-    function buyerConfirmAndRelease(uint120 orderId) public 
+    function buyerConfirmedAndRelease(uint120 orderId) public 
     {
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
         if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
@@ -113,7 +126,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCompleted(seller, _buyer[orderId], orderId, amount);
     }
 
-    function releaseAmount(uint120 orderId) public onlyEscrowHandler
+    function authorizedReleaseAmount(uint120 orderId) public onlyEscrowHandler
     {
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
         uint120 amount = _orderAmount[orderId];
@@ -124,8 +137,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         if(!success) revert TransferFailed();
         emit orderCompleted(seller, _buyer[orderId], orderId, amount);
     }
-    //todo receive onchain products 
-    
+
     // function setLockStatus(bool status, uint lock) public onlyOwner
     // {
     //     if(lock == 0)
