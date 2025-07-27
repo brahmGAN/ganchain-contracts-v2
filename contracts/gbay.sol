@@ -21,8 +21,8 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
     event orderEscrowed 
     (
         address indexed buyer, 
-        uint120 indexed orderId, 
-        uint120 indexed amount
+        uint120 indexed amount, 
+        uint indexed totalOrders
     );
 
     event orderCancelled 
@@ -40,6 +40,19 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         uint120 amount 
     );
 
+    event escrowHandlerSet 
+    (
+        address indexed escrowHandler, 
+        uint indexed timestamp 
+    );
+
+    event setLockStatusAt
+    (
+        uint indexed lock,
+        bool status,
+        uint timestamp
+    );
+
     enum orderStatus 
     {
         orderCreated, 
@@ -53,6 +66,10 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
     mapping(uint120 => address) public _seller; 
     mapping(uint120 => address) public _buyer; 
     mapping(uint120 => orderStatus) public _orderStatus; 
+    bool public _createOrder;
+    bool public _buyerDepositToEscrow; 
+    bool public _cancelBuyOrder;
+    bool public _buyerConfirmedAndRelease;
 
     modifier onlyEscrowHandler 
     {
@@ -83,7 +100,6 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCreated(msg.sender, orderId, amount);
     }
 
-    //todo: make payment for multiple orders 
     ///@dev ensure the frontend doesn't let users buy products which already has a buyer lined up
     function buyerDepositToEscrow(uint120[] memory orderId,uint120[] memory amount) public payable 
     {
@@ -98,60 +114,76 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
             totalAmount += amount[i]; 
         }
         if(msg.value != totalAmount) revert incorrectAmount();
-        //emit orderEscrowed(msg.sender, orderId, uint120(msg.value));
+        emit orderEscrowed(msg.sender, uint120(msg.value), orderIdLength);
     }
 
-    // function cancelBuyOrder(uint120 orderId) public 
-    // {
-    //     if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
-    //     uint120 amount = _orderAmount[orderId];
-    //     _buyer[orderId] = address(0);
-    //     _orderStatus[orderId] = orderStatus.orderCreated; 
-    //     (bool success,) = payable(msg.sender).call{value:amount}("");
-    //     if(!success) revert TransferFailed(); 
-    //     emit orderCancelled(msg.sender, orderId, amount);
-    // }
+    function cancelBuyOrder(uint120 orderId) public 
+    {
+        if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
+        if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess();
+        uint120 amount = _orderAmount[orderId];
+        _buyer[orderId] = address(0);
+        _orderStatus[orderId] = orderStatus.orderCreated; 
+        if(amount > address(this).balance) revert inSufficientBalanceInContract(); 
+        (bool success,) = payable(msg.sender).call{value:amount}("");
+        if(!success) revert TransferFailed(); 
+        emit orderCancelled(msg.sender, orderId, amount);
+    }
 
-    // function buyerConfirmedAndRelease(uint120 orderId) public 
-    // {
-    //     if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
-    //     if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
-    //     uint120 amount = _orderAmount[orderId];
-    //     address seller = _seller[orderId]; 
-    //     if(amount > address(this).balance) revert inSufficientBalanceInContract(); 
-    //     _orderStatus[orderId] = orderStatus.orderCompleted; 
-    //     (bool success,) = payable(seller).call{value:amount}(""); 
-    //     if(!success) revert TransferFailed();
-    //     emit orderCompleted(seller, _buyer[orderId], orderId, amount);
-    // }
+    function buyerConfirmedAndRelease(uint120 orderId) public 
+    {
+        if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
+        if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
+        uint120 amount = _orderAmount[orderId];
+        address seller = _seller[orderId]; 
+        if(amount > address(this).balance) revert inSufficientBalanceInContract(); 
+        _orderStatus[orderId] = orderStatus.orderCompleted; 
+        (bool success,) = payable(seller).call{value:amount}(""); 
+        if(!success) revert TransferFailed();
+        emit orderCompleted(seller, _buyer[orderId], orderId, amount);
+    }
 
-    // function authorizedReleaseAmount(uint120 orderId) public onlyEscrowHandler
-    // {
-    //     if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
-    //     uint120 amount = _orderAmount[orderId];
-    //     address seller = _seller[orderId]; 
-    //     if(amount > address(this).balance) revert inSufficientBalanceInContract(); 
-    //     _orderStatus[orderId] = orderStatus.orderCompleted; 
-    //     (bool success,) = payable(seller).call{value:amount}(""); 
-    //     if(!success) revert TransferFailed();
-    //     emit orderCompleted(seller, _buyer[orderId], orderId, amount);
-    // }
+    function authorizedReleaseAmount(uint120 orderId) public onlyEscrowHandler
+    {
+        if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
+        uint120 amount = _orderAmount[orderId];
+        address seller = _seller[orderId]; 
+        if(amount > address(this).balance) revert inSufficientBalanceInContract(); 
+        _orderStatus[orderId] = orderStatus.orderCompleted; 
+        (bool success,) = payable(seller).call{value:amount}(""); 
+        if(!success) revert TransferFailed();
+        emit orderCompleted(seller, _buyer[orderId], orderId, amount);
+    }
 
-    // function setLockStatus(bool status, uint lock) public onlyOwner
-    // {
-    //     if(lock == 0)
-    //     {
-    //          = status; 
-    //     }
-    //     else if(lock == 1)
-    //     {
-    //          = status; 
-    //     }
-    //     else
-    //     {
-    //         revert wrongFunctionType();
-    //     }
+    function setEscrowHandler(address escrowHandler) public
+    {
+        _escrowHandler = escrowHandler; 
+        emit escrowHandlerSet(escrowHandler, block.timestamp);
+    }
 
-    //     emit setLockStatusAt(lock, status, block.timestamp);
-    // }
+    function setLockStatus(bool status, uint lock) public onlyOwner
+    {
+        if(lock == 0)
+        {
+             _createOrder = status; 
+        }
+        else if(lock == 1)
+        {
+             _buyerDepositToEscrow = status; 
+        }
+        else if(lock == 2)
+        {
+             _cancelBuyOrder = status; 
+        }
+        else if(lock == 3)
+        {
+             _buyerConfirmedAndRelease = status; 
+        }
+        else
+        {
+            revert wrongFunctionType();
+        }
+
+        emit setLockStatusAt(lock, status, block.timestamp);
+    }
 }
