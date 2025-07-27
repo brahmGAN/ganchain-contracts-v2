@@ -37,3 +37,6 @@ clean:
 
 pretty: 
 	npx prettier --write "**/*.js"
+
+deploy-gbay: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/GBayEscrow_deploy.js --network gpu

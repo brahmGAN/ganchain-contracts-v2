@@ -84,13 +84,14 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
     { 
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
+        __ReentrancyGuard_init();
         _escrowHandler = escrowHandler; 
     }
 
     receive() external payable {}
 
     /// @dev amount must be passed in wei
-    function createOrder(uint120 amount) public 
+    function createOrder(uint120 amount) public nonReentrant
     {
         uint120 orderId = _orderId; 
         _orderAmount[orderId] = amount; 
@@ -101,7 +102,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
     }
 
     ///@dev ensure the frontend doesn't let users buy products which already has a buyer lined up
-    function buyerDepositToEscrow(uint120[] memory orderId,uint120[] memory amount) public payable 
+    function buyerDepositToEscrow(uint120[] memory orderId,uint120[] memory amount) public payable nonReentrant
     {
         uint totalAmount; 
         uint orderIdLength = orderId.length; 
@@ -117,7 +118,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderEscrowed(msg.sender, uint120(msg.value), orderIdLength);
     }
 
-    function cancelBuyOrder(uint120 orderId) public 
+    function cancelBuyOrder(uint120 orderId) public nonReentrant
     {
         if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess();
@@ -130,7 +131,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCancelled(msg.sender, orderId, amount);
     }
 
-    function buyerConfirmedAndRelease(uint120 orderId) public 
+    function buyerConfirmedAndRelease(uint120 orderId) public nonReentrant
     {
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
         if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
@@ -143,7 +144,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCompleted(seller, _buyer[orderId], orderId, amount);
     }
 
-    function authorizedReleaseAmount(uint120 orderId) public onlyEscrowHandler
+    function authorizedReleaseAmount(uint120 orderId) public onlyEscrowHandler nonReentrant
     {
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
         uint120 amount = _orderAmount[orderId];
@@ -155,7 +156,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCompleted(seller, _buyer[orderId], orderId, amount);
     }
 
-    function setEscrowHandler(address escrowHandler) public
+    function setEscrowHandler(address escrowHandler) public nonReentrant 
     {
         _escrowHandler = escrowHandler; 
         emit escrowHandlerSet(escrowHandler, block.timestamp);

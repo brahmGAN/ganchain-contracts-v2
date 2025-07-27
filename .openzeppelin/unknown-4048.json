@@ -55,6 +55,11 @@
       "address": "0xb31c33F9F3A0b7340FEE831EF8b908998af7C9df",
       "txHash": "0x528fddb09a72855295a89671ef310f43899a075cd2688f84c8711875055d6d9f",
       "kind": "uups"
+    },
+    {
+      "address": "0x04bcEDd236E79B695f90C0a1f85FAED457F0cEea",
+      "txHash": "0xda72d0eb359877476ab4435c51cd61eaaf9b99faeed04f8f6242946e5a4a4cb8",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -1486,6 +1491,220 @@
           },
           "t_mapping(t_address,t_uint120)": {
             "label": "mapping(address => uint120)",
+            "numberOfBytes": "32"
+          },
+          "t_uint120": {
+            "label": "uint120",
+            "numberOfBytes": "15"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "cb05dd6da48f3bc73844036f8eda9eae022b6d26a7fea9f5199a6d9100ad82b7": {
+      "address": "0x2fCf48C9109Dea5e69a2c3D125Feb05fbc1cCcc4",
+      "txHash": "0xd7a698889f1e1f533f8aacbdf590b1a33c1e770bc69d2f13e653c71498426d0a",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "_orderId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint120",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:63"
+          },
+          {
+            "label": "_escrowHandler",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:64"
+          },
+          {
+            "label": "_orderAmount",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint120,t_uint120)",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:65"
+          },
+          {
+            "label": "_seller",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_uint120,t_address)",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:66"
+          },
+          {
+            "label": "_buyer",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_uint120,t_address)",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:67"
+          },
+          {
+            "label": "_orderStatus",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_uint120,t_enum(orderStatus)11920)",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:68"
+          },
+          {
+            "label": "_createOrder",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_bool",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:69"
+          },
+          {
+            "label": "_buyerDepositToEscrow",
+            "offset": 1,
+            "slot": "6",
+            "type": "t_bool",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:70"
+          },
+          {
+            "label": "_cancelBuyOrder",
+            "offset": 2,
+            "slot": "6",
+            "type": "t_bool",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:71"
+          },
+          {
+            "label": "_buyerConfirmedAndRelease",
+            "offset": 3,
+            "slot": "6",
+            "type": "t_bool",
+            "contract": "GBayEscrow",
+            "src": "contracts/gbay.sol:72"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)251_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_enum(orderStatus)11920": {
+            "label": "enum GBayEscrow.orderStatus",
+            "members": [
+              "orderCreated",
+              "orderInProgress",
+              "orderCompleted"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_uint120,t_address)": {
+            "label": "mapping(uint120 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint120,t_enum(orderStatus)11920)": {
+            "label": "mapping(uint120 => enum GBayEscrow.orderStatus)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint120,t_uint120)": {
+            "label": "mapping(uint120 => uint120)",
             "numberOfBytes": "32"
           },
           "t_uint120": {
