@@ -93,6 +93,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
     /// @dev amount must be passed in wei
     function createOrder(uint120 amount) public nonReentrant
     {
+        if(!_createOrder) revert notYetAvailable();
         uint120 orderId = _orderId; 
         _orderAmount[orderId] = amount; 
         _seller[orderId] = msg.sender; 
@@ -104,6 +105,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
     ///@dev ensure the frontend doesn't let users buy products which already has a buyer lined up
     function buyerDepositToEscrow(uint120[] memory orderId,uint120[] memory amount) public payable nonReentrant
     {
+        if(!_buyerDepositToEscrow) revert notYetAvailable();
         uint totalAmount; 
         uint orderIdLength = orderId.length; 
         for(uint i=0; i < orderIdLength; i++)
@@ -120,6 +122,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
 
     function cancelBuyOrder(uint120 orderId) public nonReentrant
     {
+        if(!_cancelBuyOrder) revert notYetAvailable();
         if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess();
         uint120 amount = _orderAmount[orderId];
@@ -133,6 +136,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
 
     function buyerConfirmedAndRelease(uint120 orderId) public nonReentrant
     {
+        if(!_buyerConfirmedAndRelease) revert notYetAvailable();
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess(); 
         if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
         uint120 amount = _orderAmount[orderId];
@@ -156,7 +160,7 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
         emit orderCompleted(seller, _buyer[orderId], orderId, amount);
     }
 
-    function setEscrowHandler(address escrowHandler) public nonReentrant 
+    function setEscrowHandler(address escrowHandler) public onlyOwner  
     {
         _escrowHandler = escrowHandler; 
         emit escrowHandlerSet(escrowHandler, block.timestamp);
