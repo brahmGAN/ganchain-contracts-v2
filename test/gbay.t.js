@@ -23,7 +23,7 @@ describe("GBay", () => {
     );
   });
 
-  describe("GBay", () => {
+  describe("createOrder", () => {
     it("Should switch on every user functions", async () => {
         await GBayProxy.connect(owner).setLockStatus(true,0);
         await GBayProxy.connect(owner).setLockStatus(true,1);
@@ -44,12 +44,12 @@ describe("GBay", () => {
             .withArgs(user1.address, initialOrderId, orderAmount);
         
         // Verify order details
-        await expect(await GBayProxy._orderAmount(initialOrderId)).to.equals(orderAmount);
-        await expect(await GBayProxy._seller(initialOrderId)).to.equals(user1.address);
-        await expect(await GBayProxy._orderStatus(initialOrderId)).to.equals(0); // orderCreated = 0
+        expect(await GBayProxy._orderAmount(initialOrderId)).to.equal(orderAmount);
+        expect(await GBayProxy._seller(initialOrderId)).to.equal(user1.address);
+        expect(await GBayProxy._orderStatus(initialOrderId)).to.equal(0n); // orderCreated = 0
         
         // Verify order ID has been incremented
-        await expect(await GBayProxy._orderId()).to.equals(initialOrderId + 1n);
+        expect(await GBayProxy._orderId()).to.equal(initialOrderId + 1n);
     });
     
     it("Should fail to create order when _createOrder is false", async () => {
@@ -89,6 +89,87 @@ describe("GBay", () => {
         
         // Verify order ID has been incremented twice
         expect(await GBayProxy._orderId()).to.equal(currentOrderId + 2n);
+    });
+  });
+
+  describe("buyerDepositToEscrow", () => {
+    before(async () => {
+      // Ensure the buyerDepositToEscrow feature is enabled
+      await GBayProxy.connect(owner).setLockStatus(true, 1);
+    });
+
+    it("Should escrow a single order with exact ETH value", async () => {
+      const amount = ethers.parseEther("0.7");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+
+      const orderIds = [orderId];
+      const amounts = [amount];
+
+      await expect(
+        GBayProxy.connect(user2).buyerDepositToEscrow(orderIds, amounts, { value: amount })
+      )
+        .to.emit(GBayProxy, "orderEscrowed")
+        .withArgs(user2.address, amount, 1n);
+
+      await expect(await GBayProxy._buyer(orderId)).to.equals(user2.address);
+      await expect(await GBayProxy._orderStatus(orderId)).to.equals(1n); // orderInProgress
+    });
+
+    it("Should escrow multiple orders in a batch", async () => {
+      const idStart = await GBayProxy._orderId();
+      const amount1 = ethers.parseEther("0.3");
+      const amount2 = ethers.parseEther("1.2");
+      await GBayProxy.connect(user1).createOrder(amount1);
+      await GBayProxy.connect(owner).createOrder(amount2);
+
+      const orderIds = [idStart, idStart + 1n];
+      const amounts = [amount1, amount2];
+      const total = amount1 + amount2;
+
+      await expect(
+        GBayProxy.connect(user2).buyerDepositToEscrow(orderIds, amounts, { value: total })
+      )
+        .to.emit(GBayProxy, "orderEscrowed")
+        .withArgs(user2.address, total, 2n);
+
+      expect(await GBayProxy._buyer(orderIds[0])).to.equals(user2.address);
+      expect(await GBayProxy._buyer(orderIds[1])).to.equals(user2.address);
+      expect(await GBayProxy._orderStatus(orderIds[0])).to.equals(1n); // orderInProgress
+      expect(await GBayProxy._orderStatus(orderIds[1])).to.equals(1n); // orderInProgress
+    });
+
+    it("Should revert if ETH value does not equal sum of amounts", async () => {
+      const amount = ethers.parseEther("0.4");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+
+      await expect(
+        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount - 1n })
+      ).to.be.revertedWithCustomError(GBayProxy, "incorrectAmount");
+    });
+
+    it("Should revert if any amount does not match the order's price", async () => {
+      const amount = ethers.parseEther("0.8");
+      const wrongAmount = ethers.parseEther("0.9");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+
+      await expect(
+        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [wrongAmount], { value: wrongAmount })
+      ).to.be.revertedWithCustomError(GBayProxy, "incorrectAmount");
+    });
+
+    it("Should revert if order is not in orderCreated status", async () => {
+      const amount = ethers.parseEther("0.2");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      await expect(
+        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount })
+      ).to.be.revertedWithCustomError(GBayProxy, "BuyerPresentOrOrderCompleted");
     });
   });
 });
