@@ -266,4 +266,131 @@ describe("GBay", () => {
         .withArgs(user2.address, orderId, amount);
     });
   });
+
+  describe("buyerConfirmedAndRelease", () => {
+    before(async () => {
+      // Ensure the buyerConfirmedAndRelease feature is enabled
+      await GBayProxy.connect(owner).setLockStatus(true, 3);
+    });
+
+    it("Should allow buyer to confirm and release funds to seller", async () => {
+      // Create and escrow an order
+      const amount = ethers.parseEther("2.5");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      // Get seller's balance before release
+      const sellerBalanceBefore = await ethers.provider.getBalance(user1.address);
+
+      // Buyer confirms receipt and releases funds
+      await expect(GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId))
+        .to.emit(GBayProxy, "orderCompleted")
+        .withArgs(user1.address, user2.address, orderId, amount);
+
+      // Verify order status is set to completed
+      expect(await GBayProxy._orderStatus(orderId)).to.equal(2n); // orderCompleted = 2
+
+      // Verify seller received the funds (check balance increased)
+      const sellerBalanceAfter = await ethers.provider.getBalance(user1.address);
+      expect(sellerBalanceAfter).to.be.equals(sellerBalanceBefore+amount);
+    });
+
+    it("Should revert if caller is not the buyer", async () => {
+      // Create and escrow an order
+      const amount = ethers.parseEther("1.8");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      // Try to confirm from a different user (seller)
+      await expect(
+        GBayProxy.connect(user1).buyerConfirmedAndRelease(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "NotTheBuyer");
+    });
+
+    it("Should revert if order is not in progress", async () => {
+      // Create an order but don't escrow it
+      const amount = ethers.parseEther("0.9");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+
+      // Try to confirm an order that's not in progress
+      await expect(
+        GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "OrderNotInProgess");
+    });
+
+    it("Should revert if order is already completed", async () => {
+      // Create, escrow, and complete an order
+      const amount = ethers.parseEther("1.2");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId);
+
+      // Try to confirm the same order again
+      await expect(
+        GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "OrderNotInProgess");
+    });
+
+    it("Should revert if buyerConfirmedAndRelease feature is disabled", async () => {
+      // Disable the buyerConfirmedAndRelease feature
+      await GBayProxy.connect(owner).setLockStatus(false, 3);
+
+      // Create and escrow an order
+      const amount = ethers.parseEther("0.6");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      // Try to confirm - should revert
+      await expect(
+        GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "notYetAvailable");
+
+      // Re-enable for other tests
+      await GBayProxy.connect(owner).setLockStatus(true, 3);
+    });
+
+    it("Should revert if contract has insufficient balance", async () => {
+      // Create and escrow an order
+      const amount = ethers.parseEther("5000"); // Large amount
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      // The contract should have the escrowed amount, so confirmation should work
+      await expect(GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId))
+        .to.emit(GBayProxy, "orderCompleted")
+        .withArgs(user1.address, user2.address, orderId, amount);
+    });
+
+    it("Should complete multiple orders independently", async () => {
+      // Create and escrow two orders
+      const amount1 = ethers.parseEther("0.4");
+      const amount2 = ethers.parseEther("0.8");
+      const orderId1 = await GBayProxy._orderId();
+      const orderId2 = await GBayProxy._orderId() + 1n;
+      
+      await GBayProxy.connect(user1).createOrder(amount1);
+      await GBayProxy.connect(owner).createOrder(amount2);
+      
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId1, orderId2], [amount1, amount2], { 
+        value: amount1 + amount2 
+      });
+
+      // Complete first order
+      await GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId1);
+      expect(await GBayProxy._orderStatus(orderId1)).to.equal(2n); // orderCompleted
+
+      // Second order should still be in progress
+      expect(await GBayProxy._orderStatus(orderId2)).to.equal(1n); // orderInProgress
+
+      // Complete second order
+      await GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId2);
+      expect(await GBayProxy._orderStatus(orderId2)).to.equal(2n); // orderCompleted
+    });
+  });
 });
