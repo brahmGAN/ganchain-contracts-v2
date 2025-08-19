@@ -123,8 +123,8 @@ contract GBayEscrow is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgra
     function cancelBuyOrder(uint120 orderId) public nonReentrant
     {
         if(!_cancelBuyOrder) revert notYetAvailable();
-        if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
         if(_orderStatus[orderId] != orderStatus.orderInProgress) revert OrderNotInProgess();
+        if(_buyer[orderId] != msg.sender) revert NotTheBuyer(); 
         uint120 amount = _orderAmount[orderId];
         _buyer[orderId] = address(0);
         _orderStatus[orderId] = orderStatus.orderCreated; 
