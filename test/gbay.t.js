@@ -289,7 +289,7 @@ describe("GBay", () => {
         .withArgs(user1.address, user2.address, orderId, amount);
 
       // Verify order status is set to completed
-      expect(await GBayProxy._orderStatus(orderId)).to.equal(2n); // orderCompleted = 2
+      expect(await GBayProxy._orderStatus(orderId)).to.equal(2n); // orderCompleted
 
       // Verify seller received the funds (check balance increased)
       const sellerBalanceAfter = await ethers.provider.getBalance(user1.address);
@@ -391,6 +391,85 @@ describe("GBay", () => {
       // Complete second order
       await GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId2);
       expect(await GBayProxy._orderStatus(orderId2)).to.equal(2n); // orderCompleted
+    });
+  });
+
+  describe("authorizedReleaseAmount & setEscrowHandler", () => {
+    it("Should allow current escrowHandler to release funds to seller", async () => {
+      const amount = ethers.parseEther("1.3");
+      const orderId = await GBayProxy._orderId();
+      
+      // Seller lists item
+      await GBayProxy.connect(user1).createOrder(amount);
+      // Buyer escrows
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      const sellerBalanceBefore = await ethers.provider.getBalance(user1.address);
+
+      await expect(GBayProxy.connect(escrowHandler).authorizedReleaseAmount(orderId))
+        .to.emit(GBayProxy, "orderCompleted")
+        .withArgs(user1.address, user2.address, orderId, amount);
+
+      expect(await GBayProxy._orderStatus(orderId)).to.equal(2n); // orderCompleted
+      const sellerBalanceAfter = await ethers.provider.getBalance(user1.address);
+      expect(sellerBalanceAfter).to.equal(sellerBalanceBefore + amount);
+    });
+
+    it("Should revert if caller is not the escrowHandler", async () => {
+      const amount = ethers.parseEther("0.75");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      await expect(
+        GBayProxy.connect(user1).authorizedReleaseAmount(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "UnauthorizedEscrowHandler");
+
+      await expect(
+        GBayProxy.connect(owner).authorizedReleaseAmount(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "UnauthorizedEscrowHandler");
+    });
+
+    it("Should revert if order is not in progress", async () => {
+      const amount = ethers.parseEther("0.22");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(user1).createOrder(amount);
+
+      // Not escrowed -> status is orderCreated
+      await expect(
+        GBayProxy.connect(escrowHandler).authorizedReleaseAmount(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "OrderNotInProgess");
+    });
+
+    it("Owner can set a new escrow handler and only the new one can release", async () => {
+      // Change handler to user1
+      await GBayProxy.connect(owner).setEscrowHandler(user1.address);
+      expect(await GBayProxy._escrowHandler()).to.equal(user1.address);
+
+      const amount = ethers.parseEther("1.0");
+      const orderId = await GBayProxy._orderId();
+      await GBayProxy.connect(owner).createOrder(amount);
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+
+      // Old handler should fail now
+      await expect(
+        GBayProxy.connect(escrowHandler).authorizedReleaseAmount(orderId)
+      ).to.be.revertedWithCustomError(GBayProxy, "UnauthorizedEscrowHandler");
+
+      const sellerBalanceBefore = await ethers.provider.getBalance(owner.address);
+
+      // New handler (user1) can release
+      await expect(GBayProxy.connect(user1).authorizedReleaseAmount(orderId))
+        .to.emit(GBayProxy, "orderCompleted")
+        .withArgs(owner.address, user2.address, orderId, amount);
+
+      expect(await GBayProxy._orderStatus(orderId)).to.equal(2n);
+      const sellerBalanceAfter = await ethers.provider.getBalance(owner.address);
+      expect(sellerBalanceAfter).to.equal(sellerBalanceBefore + amount);
+
+      // Set it back to original escrowHandler for subsequent tests (if any)
+      await GBayProxy.connect(owner).setEscrowHandler(escrowHandler.address);
+      expect(await GBayProxy._escrowHandler()).to.equal(escrowHandler.address);
     });
   });
 });
