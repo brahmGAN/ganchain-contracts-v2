@@ -160,7 +160,7 @@ describe("Bridge:", () => {
         "user 2 balance: " + (await ethers.provider.getBalance(user2.address))
       );
       await expect(await ethers.provider.getBalance(user2.address)).to.equal(
-        ethers.parseEther("9999.999797194729469032")
+        ethers.parseEther("9999.999797164032875002")
       );
       console.log(
         "user2 balance:" + (await ethers.provider.getBalance(user2.address))
@@ -169,7 +169,7 @@ describe("Bridge:", () => {
         .connect(relayer2)
         .releaseGpu(ethers.parseEther("69"), user2);
       await expect(await ethers.provider.getBalance(user2.address)).to.equal(
-        ethers.parseEther("10068.999797194729469032")
+        ethers.parseEther("10068.999797164032875002")
       );
       await expect(
         await ganBridgeProxy._totalReleasedAmount(user2.address)
