@@ -26,7 +26,13 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
 
     bool public _lockGpu; 
 
+    bool public _lockGpuSolana; 
+
     mapping(address => bool) public _isRelayer; 
+
+    mapping(uint120 => string) public _solAddress; 
+
+    mapping(uint120 => uint120) public _lockedAmount; 
 
     event lockedGpu
     (
@@ -35,6 +41,15 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         uint120 lockId, 
         uint timestamp,
         uint chain 
+    );
+
+    event lockedGpuSolana
+    (
+        address user,
+        uint amountLocked, 
+        uint120 lockId, 
+        uint timestamp,
+        string solAddress
     );
 
     event releasedGpu
@@ -83,9 +98,25 @@ contract GanChainBridge is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardU
         uint120 lockId = _lockId; 
         _lockedUser[lockId] = msg.sender;
         _totalLockedAmount[msg.sender] += uint120(msg.value); 
+        _lockedAmount[lockId] = uint120(msg.value);
         _lockId++; 
         _gpuLockers.push(msg.sender); 
         emit lockedGpu(msg.sender, msg.value, lockId, block.timestamp, chainId);
+    }
+
+    function lockGpuSolana(uint amount, string memory solAddress) public payable nonReentrant
+    {
+        if(!_lockGpuSolana) revert notYetAvailable(); 
+        if(msg.value != amount) revert incorrectAmount();
+        if(bytes(solAddress).length < 32 || bytes(solAddress).length > 44) revert invalidSolAddress();
+        uint120 lockId = _lockId; 
+        _lockedUser[lockId] = msg.sender;
+        _totalLockedAmount[msg.sender] += uint120(msg.value); 
+        _solAddress[lockId] = solAddress; 
+        _lockedAmount[lockId] = uint120(msg.value);
+        _lockId++; 
+        _gpuLockers.push(msg.sender); 
+        emit lockedGpuSolana(msg.sender, msg.value, lockId, block.timestamp, solAddress);
     }
 
     /// @notice `amount` should be passed in wei

@@ -152,4 +152,6 @@ interface IErrors
   error NotTheBuyer(); 
 
   error BuyerPresentOrOrderCompleted();
+
+  error invalidSolAddress();
 }
