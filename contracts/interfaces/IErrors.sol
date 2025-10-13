@@ -154,4 +154,6 @@ interface IErrors
   error BuyerPresentOrOrderCompleted();
 
   error invalidSolAddress();
+
+  error UnauthorizedFundsHandler();
 }

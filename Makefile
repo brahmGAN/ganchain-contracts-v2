@@ -40,3 +40,6 @@ pretty:
 
 deploy-gbay: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/GBayEscrow_deploy.js --network gpu
+
+deploy-copperx: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/copperx_deploy.js --network gpu

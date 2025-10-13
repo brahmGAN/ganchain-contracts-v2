@@ -60,6 +60,56 @@
       "address": "0x04bcEDd236E79B695f90C0a1f85FAED457F0cEea",
       "txHash": "0xda72d0eb359877476ab4435c51cd61eaaf9b99faeed04f8f6242946e5a4a4cb8",
       "kind": "uups"
+    },
+    {
+      "address": "0x1aE92019a665b6f2271b3FE11671A7248369451F",
+      "txHash": "0x011d80e256175b3141f36235ad839b752741b9343bb914dc0f7157e6555e2830",
+      "kind": "uups"
+    },
+    {
+      "address": "0xE4C6847e42dbA3ffbFA5a489074fD53de1134175",
+      "txHash": "0x5f34340c0a06997221a67ab064b0669cb0ce18001a14a66cfe35edca1b7fff74",
+      "kind": "uups"
+    },
+    {
+      "address": "0xD6f4781540D64349bB357Dc829A34c1C5830671b",
+      "txHash": "0x52984b25a40921495cdbb5b1e72a9915a8fb650e62307d7e47631ff421437d11",
+      "kind": "uups"
+    },
+    {
+      "address": "0x9A53e65e0b195080a2865f06e217F284158e3323",
+      "txHash": "0xc9233c767cfce0389941f1eec3ce79d08d9b85a962d73e63b500ce64e0e53f66",
+      "kind": "uups"
+    },
+    {
+      "address": "0x456B67642bde0032eD522DE934792a48312588f2",
+      "txHash": "0xc3df8994c901b5e6ec1cef701df8b4f4be248c0d0d37d35e1bff028ed7de73f1",
+      "kind": "uups"
+    },
+    {
+      "address": "0xfc012D3fe22CFB309c943755426ccc39DEed53fc",
+      "txHash": "0xfad3e2a46f24521f85b17a50c19d270841e81d8c5c156175c41581d1b762155b",
+      "kind": "uups"
+    },
+    {
+      "address": "0xa4bE055ca42d00e7C8fCC3584a9cbDE29d0A43B3",
+      "txHash": "0x0d84e6a8f41bb1108501a61e4123a80188f63c2b9a08a70d5b5069a13e6db15a",
+      "kind": "uups"
+    },
+    {
+      "address": "0x6Ba95C035BF883eED22C4c47b57899Ce30303B12",
+      "txHash": "0xf8c213a3426262e98a1b39669773a2e94a313af0e69ffe8b074ad46d438db53c",
+      "kind": "uups"
+    },
+    {
+      "address": "0x7297D981dE0C35750F4F4754E5e49Cc2af9f43E9",
+      "txHash": "0x9ecdeebd3691b2482771f0ca2f6c77375a85170e6d16c6d1f82db6c88e3b9a34",
+      "kind": "uups"
+    },
+    {
+      "address": "0x3760612E81e880153B506cDd98C1136B98403C1c",
+      "txHash": "0x3f1153e1a6645dcbde466c0dcb79a7da2926f6e94fb59103ba395d1fe5f77740",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -1705,6 +1755,155 @@
           },
           "t_mapping(t_uint120,t_uint120)": {
             "label": "mapping(uint120 => uint120)",
+            "numberOfBytes": "32"
+          },
+          "t_uint120": {
+            "label": "uint120",
+            "numberOfBytes": "15"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "83fad3db653781b1ea201aaa6ceb6eb6b941a2ef253a37d132168a6fa06822fb": {
+      "address": "0x4250c44712e803AB11b1B9bCd5E88cd67b79A6Ac",
+      "txHash": "0x7befaabe48ff54e9d02b895160462aeb5b4e0fc495cabc2e35a63465f1355d09",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "_releaseGpu",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "CopperxGPU",
+            "src": "contracts/copperx.sol:11"
+          },
+          {
+            "label": "_fundsHandler",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "CopperxGPU",
+            "src": "contracts/copperx.sol:13"
+          },
+          {
+            "label": "_releasedAmount",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_uint120)",
+            "contract": "CopperxGPU",
+            "src": "contracts/copperx.sol:15"
+          },
+          {
+            "label": "_totalReleasedAmount",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint120",
+            "contract": "CopperxGPU",
+            "src": "contracts/copperx.sol:17"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)73_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)13_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)251_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_mapping(t_address,t_uint120)": {
+            "label": "mapping(address => uint120)",
             "numberOfBytes": "32"
           },
           "t_uint120": {
