@@ -156,4 +156,6 @@ interface IErrors
   error invalidSolAddress();
 
   error UnauthorizedFundsHandler();
+
+  error IdAlreadyUsed();
 }
