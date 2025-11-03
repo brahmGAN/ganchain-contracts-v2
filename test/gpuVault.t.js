@@ -6,7 +6,7 @@ describe("GPUVault", () => {
   let orderBookHandler;
   let user1;
   let user2;
-  let v2GPUVaultProxy; 
+  let v2GPUVaultProxy;
   before(async () => {
     [owner, orderBookHandler, user1, user2] = await ethers.getSigners();
 
@@ -66,28 +66,35 @@ describe("GPUVault", () => {
     });
   });
 
-  describe("v2 GPU vault Contract upgrade:",()=>{
-    it("Should upgrade to the new GPU vault contract:",async()=>{
-      totalDepositedBeforeUpgrade = await GPUVaultProxy.totalDeposited(); 
+  describe("v2 GPU vault Contract upgrade:", () => {
+    it("Should upgrade to the new GPU vault contract:", async () => {
+      totalDepositedBeforeUpgrade = await GPUVaultProxy.totalDeposited();
       const v2GPUVaultFactory = await ethers.getContractFactory("v2GPUVault");
       v2GPUVaultProxy = await upgrades.upgradeProxy(
-        GPUVaultProxy.target, 
+        GPUVaultProxy.target,
         v2GPUVaultFactory
       );
-      await expect(await v2GPUVaultProxy.totalDeposited()).to.equals(totalDepositedBeforeUpgrade);
+      await expect(await v2GPUVaultProxy.totalDeposited()).to.equals(
+        totalDepositedBeforeUpgrade
+      );
     });
   });
 
-  describe("Withdraw after upgrading:",()=>{
-    it("Should fail if anyone other than orderBookHandler tries to withdraw",async()=>{
+  describe("Withdraw after upgrading:", () => {
+    it("Should fail if anyone other than orderBookHandler tries to withdraw", async () => {
       await v2GPUVaultProxy.connect(owner).setLockStatus(true, 2);
       await expect(
-        v2GPUVaultProxy.connect(user1).withdrawGpuFor(user1.address, ethers.parseEther("1"))
+        v2GPUVaultProxy
+          .connect(user1)
+          .withdrawGpuFor(user1.address, ethers.parseEther("1"))
       ).to.be.revertedWith("GPUVault: Only Orderbook can call this");
     });
 
-    it("Should let orderbook handler withdraw on user1's behalf",async()=>{
-      await owner.sendTransaction({ to: v2GPUVaultProxy.target, value: ethers.parseEther("10") });
+    it("Should let orderbook handler withdraw on user1's behalf", async () => {
+      await owner.sendTransaction({
+        to: v2GPUVaultProxy.target,
+        value: ethers.parseEther("10"),
+      });
       await v2GPUVaultProxy.connect(owner).setLockStatus(true, 2);
       const before = await ethers.provider.getBalance(user1.address);
       const tx = await v2GPUVaultProxy

@@ -2,12 +2,9 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
-
   const escrowHandler = "0xE54aae92cb417aa2B17a359957D6BbF4661e5151";
 
-  const GBayEscrowFactory = await ethers.getContractFactory(
-    "GBayEscrow"
-  );
+  const GBayEscrowFactory = await ethers.getContractFactory("GBayEscrow");
   const GBayEscrowProxy = await upgrades.deployProxy(
     GBayEscrowFactory,
     [escrowHandler],

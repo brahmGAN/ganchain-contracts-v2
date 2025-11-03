@@ -8,7 +8,7 @@ describe("GBay", () => {
   let user2;
   let GBayFactory;
   let GBayProxy;
-  
+
   before(async () => {
     [owner, escrowHandler, user1, user2] = await ethers.getSigners();
 
@@ -25,70 +25,78 @@ describe("GBay", () => {
 
   describe("createOrder", () => {
     it("Should switch on every user functions", async () => {
-        await GBayProxy.connect(owner).setLockStatus(true,0);
-        await GBayProxy.connect(owner).setLockStatus(true,1);
-        await GBayProxy.connect(owner).setLockStatus(true,2);
-        await GBayProxy.connect(owner).setLockStatus(true,3);
+      await GBayProxy.connect(owner).setLockStatus(true, 0);
+      await GBayProxy.connect(owner).setLockStatus(true, 1);
+      await GBayProxy.connect(owner).setLockStatus(true, 2);
+      await GBayProxy.connect(owner).setLockStatus(true, 3);
     });
-    
+
     it("Should let users create order", async () => {
-        // Get initial order ID
-        const initialOrderId = await GBayProxy._orderId();
-        
-        // Amount in wei (1 ETH = 1000000000000000000 wei) 
-        const orderAmount = ethers.parseEther("1.5"); // 1.5 ETH in wei
-        
-        // Create order and expect event emission
-        await expect(GBayProxy.connect(user1).createOrder(orderAmount))
-            .to.emit(GBayProxy, "orderCreated")
-            .withArgs(user1.address, initialOrderId, orderAmount);
-        
-        // Verify order details
-        expect(await GBayProxy._orderAmount(initialOrderId)).to.equal(orderAmount);
-        expect(await GBayProxy._seller(initialOrderId)).to.equal(user1.address);
-        expect(await GBayProxy._orderStatus(initialOrderId)).to.equal(0n); // orderCreated = 0
-        
-        // Verify order ID has been incremented
-        expect(await GBayProxy._orderId()).to.equal(initialOrderId + 1n);
+      // Get initial order ID
+      const initialOrderId = await GBayProxy._orderId();
+
+      // Amount in wei (1 ETH = 1000000000000000000 wei)
+      const orderAmount = ethers.parseEther("1.5"); // 1.5 ETH in wei
+
+      // Create order and expect event emission
+      await expect(GBayProxy.connect(user1).createOrder(orderAmount))
+        .to.emit(GBayProxy, "orderCreated")
+        .withArgs(user1.address, initialOrderId, orderAmount);
+
+      // Verify order details
+      expect(await GBayProxy._orderAmount(initialOrderId)).to.equal(
+        orderAmount
+      );
+      expect(await GBayProxy._seller(initialOrderId)).to.equal(user1.address);
+      expect(await GBayProxy._orderStatus(initialOrderId)).to.equal(0n); // orderCreated = 0
+
+      // Verify order ID has been incremented
+      expect(await GBayProxy._orderId()).to.equal(initialOrderId + 1n);
     });
-    
+
     it("Should fail to create order when _createOrder is false", async () => {
-        // Set _createOrder to false
-        await GBayProxy.connect(owner).setLockStatus(false, 0);
-        
-        const orderAmount = ethers.parseEther("1.0");
-        
-        // Should revert with notYetAvailable error
-        await expect(
-            GBayProxy.connect(user2).createOrder(orderAmount)
-        ).to.be.revertedWithCustomError(GBayProxy, "notYetAvailable");
-        
-        // Re-enable _createOrder for other tests
-        await GBayProxy.connect(owner).setLockStatus(true, 0);
+      // Set _createOrder to false
+      await GBayProxy.connect(owner).setLockStatus(false, 0);
+
+      const orderAmount = ethers.parseEther("1.0");
+
+      // Should revert with notYetAvailable error
+      await expect(
+        GBayProxy.connect(user2).createOrder(orderAmount)
+      ).to.be.revertedWithCustomError(GBayProxy, "notYetAvailable");
+
+      // Re-enable _createOrder for other tests
+      await GBayProxy.connect(owner).setLockStatus(true, 0);
     });
-    
+
     it("Should allow multiple users to create orders", async () => {
-        const user1Amount = ethers.parseEther("2.0");
-        const user2Amount = ethers.parseEther("0.5");
-        
-        // Get current order ID
-        const currentOrderId = await GBayProxy._orderId();
-        
-        // User1 creates order
-        await GBayProxy.connect(user1).createOrder(user1Amount);
-        
-        // User2 creates order
-        await GBayProxy.connect(user2).createOrder(user2Amount);
-        
-        // Verify both orders were created correctly
-        expect(await GBayProxy._orderAmount(currentOrderId)).to.equal(user1Amount);
-        expect(await GBayProxy._seller(currentOrderId)).to.equal(user1.address);
-        
-        expect(await GBayProxy._orderAmount(currentOrderId + 1n)).to.equal(user2Amount);
-        expect(await GBayProxy._seller(currentOrderId + 1n)).to.equal(user2.address);
-        
-        // Verify order ID has been incremented twice
-        expect(await GBayProxy._orderId()).to.equal(currentOrderId + 2n);
+      const user1Amount = ethers.parseEther("2.0");
+      const user2Amount = ethers.parseEther("0.5");
+
+      // Get current order ID
+      const currentOrderId = await GBayProxy._orderId();
+
+      // User1 creates order
+      await GBayProxy.connect(user1).createOrder(user1Amount);
+
+      // User2 creates order
+      await GBayProxy.connect(user2).createOrder(user2Amount);
+
+      // Verify both orders were created correctly
+      expect(await GBayProxy._orderAmount(currentOrderId)).to.equal(
+        user1Amount
+      );
+      expect(await GBayProxy._seller(currentOrderId)).to.equal(user1.address);
+
+      expect(await GBayProxy._orderAmount(currentOrderId + 1n)).to.equal(
+        user2Amount
+      );
+      expect(await GBayProxy._seller(currentOrderId + 1n)).to.equal(
+        user2.address
+      );
+
+      // Verify order ID has been incremented twice
+      expect(await GBayProxy._orderId()).to.equal(currentOrderId + 2n);
     });
   });
 
@@ -107,7 +115,9 @@ describe("GBay", () => {
       const amounts = [amount];
 
       await expect(
-        GBayProxy.connect(user2).buyerDepositToEscrow(orderIds, amounts, { value: amount })
+        GBayProxy.connect(user2).buyerDepositToEscrow(orderIds, amounts, {
+          value: amount,
+        })
       )
         .to.emit(GBayProxy, "orderEscrowed")
         .withArgs(user2.address, amount, 1n);
@@ -128,7 +138,9 @@ describe("GBay", () => {
       const total = amount1 + amount2;
 
       await expect(
-        GBayProxy.connect(user2).buyerDepositToEscrow(orderIds, amounts, { value: total })
+        GBayProxy.connect(user2).buyerDepositToEscrow(orderIds, amounts, {
+          value: total,
+        })
       )
         .to.emit(GBayProxy, "orderEscrowed")
         .withArgs(user2.address, total, 2n);
@@ -145,7 +157,9 @@ describe("GBay", () => {
       await GBayProxy.connect(user1).createOrder(amount);
 
       await expect(
-        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount - 1n })
+        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+          value: amount - 1n,
+        })
       ).to.be.revertedWithCustomError(GBayProxy, "incorrectAmount");
     });
 
@@ -156,7 +170,11 @@ describe("GBay", () => {
       await GBayProxy.connect(user1).createOrder(amount);
 
       await expect(
-        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [wrongAmount], { value: wrongAmount })
+        GBayProxy.connect(user2).buyerDepositToEscrow(
+          [orderId],
+          [wrongAmount],
+          { value: wrongAmount }
+        )
       ).to.be.revertedWithCustomError(GBayProxy, "incorrectAmount");
     });
 
@@ -165,11 +183,18 @@ describe("GBay", () => {
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
 
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       await expect(
-        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount })
-      ).to.be.revertedWithCustomError(GBayProxy, "BuyerPresentOrOrderCompleted");
+        GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+          value: amount,
+        })
+      ).to.be.revertedWithCustomError(
+        GBayProxy,
+        "BuyerPresentOrOrderCompleted"
+      );
     });
   });
 
@@ -184,10 +209,14 @@ describe("GBay", () => {
       const amount = ethers.parseEther("1.0");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Get buyer's balance before cancellation
-      const buyerBalanceBefore = await ethers.provider.getBalance(user2.address);
+      const buyerBalanceBefore = await ethers.provider.getBalance(
+        user2.address
+      );
 
       // Cancel the order
       await expect(GBayProxy.connect(user2).cancelBuyOrder(orderId))
@@ -196,7 +225,7 @@ describe("GBay", () => {
 
       // Verify order status is reset to orderCreated
       expect(await GBayProxy._orderStatus(orderId)).to.equal(0n); // orderCreated = 0
-      
+
       // Verify buyer is cleared
       expect(await GBayProxy._buyer(orderId)).to.equal(ethers.ZeroAddress);
 
@@ -210,7 +239,9 @@ describe("GBay", () => {
       const amount = ethers.parseEther("0.5");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Try to cancel from a different user
       await expect(
@@ -238,7 +269,9 @@ describe("GBay", () => {
       const amount = ethers.parseEther("0.4");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Try to cancel - should revert
       await expect(
@@ -254,12 +287,14 @@ describe("GBay", () => {
       const amount = ethers.parseEther("1000"); // Large amount
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Drain contract balance (this would need to be done through other means in real scenario)
       // For testing, we'll just verify the revert condition exists
       // This test demonstrates the contract's safety check
-      
+
       // The contract should have the escrowed amount, so cancellation should work
       await expect(GBayProxy.connect(user2).cancelBuyOrder(orderId))
         .to.emit(GBayProxy, "orderCancelled")
@@ -278,10 +313,14 @@ describe("GBay", () => {
       const amount = ethers.parseEther("2.5");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Get seller's balance before release
-      const sellerBalanceBefore = await ethers.provider.getBalance(user1.address);
+      const sellerBalanceBefore = await ethers.provider.getBalance(
+        user1.address
+      );
 
       // Buyer confirms receipt and releases funds
       await expect(GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId))
@@ -292,8 +331,10 @@ describe("GBay", () => {
       expect(await GBayProxy._orderStatus(orderId)).to.equal(2n); // orderCompleted
 
       // Verify seller received the funds (check balance increased)
-      const sellerBalanceAfter = await ethers.provider.getBalance(user1.address);
-      expect(sellerBalanceAfter).to.be.equals(sellerBalanceBefore+amount);
+      const sellerBalanceAfter = await ethers.provider.getBalance(
+        user1.address
+      );
+      expect(sellerBalanceAfter).to.be.equals(sellerBalanceBefore + amount);
     });
 
     it("Should revert if caller is not the buyer", async () => {
@@ -301,7 +342,9 @@ describe("GBay", () => {
       const amount = ethers.parseEther("1.8");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Try to confirm from a different user (seller)
       await expect(
@@ -326,7 +369,9 @@ describe("GBay", () => {
       const amount = ethers.parseEther("1.2");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
       await GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId);
 
       // Try to confirm the same order again
@@ -343,7 +388,9 @@ describe("GBay", () => {
       const amount = ethers.parseEther("0.6");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Try to confirm - should revert
       await expect(
@@ -359,7 +406,9 @@ describe("GBay", () => {
       const amount = ethers.parseEther("5000"); // Large amount
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // The contract should have the escrowed amount, so confirmation should work
       await expect(GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId))
@@ -372,14 +421,18 @@ describe("GBay", () => {
       const amount1 = ethers.parseEther("0.4");
       const amount2 = ethers.parseEther("0.8");
       const orderId1 = await GBayProxy._orderId();
-      const orderId2 = await GBayProxy._orderId() + 1n;
-      
+      const orderId2 = (await GBayProxy._orderId()) + 1n;
+
       await GBayProxy.connect(user1).createOrder(amount1);
       await GBayProxy.connect(owner).createOrder(amount2);
-      
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId1, orderId2], [amount1, amount2], { 
-        value: amount1 + amount2 
-      });
+
+      await GBayProxy.connect(user2).buyerDepositToEscrow(
+        [orderId1, orderId2],
+        [amount1, amount2],
+        {
+          value: amount1 + amount2,
+        }
+      );
 
       // Complete first order
       await GBayProxy.connect(user2).buyerConfirmedAndRelease(orderId1);
@@ -398,20 +451,28 @@ describe("GBay", () => {
     it("Should allow current escrowHandler to release funds to seller", async () => {
       const amount = ethers.parseEther("1.3");
       const orderId = await GBayProxy._orderId();
-      
+
       // Seller lists item
       await GBayProxy.connect(user1).createOrder(amount);
       // Buyer escrows
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
-      const sellerBalanceBefore = await ethers.provider.getBalance(user1.address);
+      const sellerBalanceBefore = await ethers.provider.getBalance(
+        user1.address
+      );
 
-      await expect(GBayProxy.connect(escrowHandler).authorizedReleaseAmount(orderId))
+      await expect(
+        GBayProxy.connect(escrowHandler).authorizedReleaseAmount(orderId)
+      )
         .to.emit(GBayProxy, "orderCompleted")
         .withArgs(user1.address, user2.address, orderId, amount);
 
       expect(await GBayProxy._orderStatus(orderId)).to.equal(2n); // orderCompleted
-      const sellerBalanceAfter = await ethers.provider.getBalance(user1.address);
+      const sellerBalanceAfter = await ethers.provider.getBalance(
+        user1.address
+      );
       expect(sellerBalanceAfter).to.equal(sellerBalanceBefore + amount);
     });
 
@@ -419,7 +480,9 @@ describe("GBay", () => {
       const amount = ethers.parseEther("0.75");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(user1).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       await expect(
         GBayProxy.connect(user1).authorizedReleaseAmount(orderId)
@@ -449,14 +512,18 @@ describe("GBay", () => {
       const amount = ethers.parseEther("1.0");
       const orderId = await GBayProxy._orderId();
       await GBayProxy.connect(owner).createOrder(amount);
-      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], { value: amount });
+      await GBayProxy.connect(user2).buyerDepositToEscrow([orderId], [amount], {
+        value: amount,
+      });
 
       // Old handler should fail now
       await expect(
         GBayProxy.connect(escrowHandler).authorizedReleaseAmount(orderId)
       ).to.be.revertedWithCustomError(GBayProxy, "UnauthorizedEscrowHandler");
 
-      const sellerBalanceBefore = await ethers.provider.getBalance(owner.address);
+      const sellerBalanceBefore = await ethers.provider.getBalance(
+        owner.address
+      );
 
       // New handler (user1) can release
       await expect(GBayProxy.connect(user1).authorizedReleaseAmount(orderId))
@@ -464,7 +531,9 @@ describe("GBay", () => {
         .withArgs(owner.address, user2.address, orderId, amount);
 
       expect(await GBayProxy._orderStatus(orderId)).to.equal(2n);
-      const sellerBalanceAfter = await ethers.provider.getBalance(owner.address);
+      const sellerBalanceAfter = await ethers.provider.getBalance(
+        owner.address
+      );
       expect(sellerBalanceAfter).to.equal(sellerBalanceBefore + amount);
 
       // Set it back to original escrowHandler for subsequent tests (if any)

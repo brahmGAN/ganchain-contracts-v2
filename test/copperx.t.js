@@ -6,7 +6,7 @@
 //   let fundsHandler;
 //   let user1;
 //   let copperxProxy;
-  
+
 //   before(async () => {
 //     [owner, user1, fundsHandler] = await ethers.getSigners();
 
@@ -19,7 +19,7 @@
 //         from: owner.address,
 //       }
 //     );
-    
+
 //     // Send some ETH to contract for testing
 //     await owner.sendTransaction({
 //       to: copperxProxy.target,
@@ -50,15 +50,15 @@
 //     it("Should successfully release GPU tokens", async () => {
 //       const amount = ethers.parseEther("1");
 //       const initialBalance = await ethers.provider.getBalance(user1.address);
-      
+
 //       await expect(
 //         copperxProxy.connect(fundsHandler).releaseGpu(amount, user1.address)
 //       ).to.emit(copperxProxy, "releasedGpu")
 //       .withArgs(user1.address, await ethers.provider.getBlockNumber(), amount);
-      
+
 //       const finalBalance = await ethers.provider.getBalance(user1.address);
 //       expect(finalBalance).to.equal(initialBalance + amount);
-      
+
 //       // Check released amount tracking
 //       expect(await copperxProxy._releasedAmount(user1.address)).to.equal(amount);
 //       expect(await copperxProxy._totalReleasedAmount()).to.equal(amount);

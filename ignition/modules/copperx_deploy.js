@@ -2,7 +2,6 @@ const { ethers, upgrades } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
-
   const fundsHandler = "0xB87Be23d7F869BC7E355c1af2F6b575B854f1BB4";
 
   const copperxFactory = await ethers.getContractFactory("CopperxGPU");

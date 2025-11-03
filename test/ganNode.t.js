@@ -17,7 +17,7 @@ describe("GANNode ERC721 Enumerable", () => {
   describe("ERC721 Enumerable functionality", () => {
     it("Should mint NFTs to 3 users in jumbled order and verify tokensOfOwner", async () => {
       const uri = "https://example.com/metadata/";
-      
+
       // Mint NFTs in jumbled order (using owner account)
       await ganNode.connect(owner).mintNode(user1.address, uri); // Token ID: 1
       await ganNode.connect(owner).mintNode(user3.address, uri); // Token ID: 2
@@ -33,9 +33,18 @@ describe("GANNode ERC721 Enumerable", () => {
       const user3Tokens = await ganNode.tokensOfOwner(user3.address);
 
       // Log results
-      console.log("User1 tokens:", user1Tokens.map(t => t.toString()));
-      console.log("User2 tokens:", user2Tokens.map(t => t.toString()));
-      console.log("User3 tokens:", user3Tokens.map(t => t.toString()));
+      console.log(
+        "User1 tokens:",
+        user1Tokens.map((t) => t.toString())
+      );
+      console.log(
+        "User2 tokens:",
+        user2Tokens.map((t) => t.toString())
+      );
+      console.log(
+        "User3 tokens:",
+        user3Tokens.map((t) => t.toString())
+      );
 
       // Verify correct token counts
       expect(user1Tokens.length).to.equal(3);
