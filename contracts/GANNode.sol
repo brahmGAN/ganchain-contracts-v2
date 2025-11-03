@@ -18,7 +18,22 @@ contract GANNode is ERC721URIStorage, ERC721Enumerable, Ownable, IErrors
         uint timestamp
     );
 
+    event batchTransfered(
+        address sender, 
+        address receiver,     
+        uint120 quantity,  
+        uint timestamp 
+    );
+
+    event setLockStatusAt(
+        uint indexed lock,
+        bool status,
+        uint timestamp
+    );
+
     uint120 public _tokenID;
+
+    bool public _batchTransfer; 
 
     constructor() ERC721("GAN-Node","GN") Ownable(msg.sender) {}
 
@@ -77,5 +92,31 @@ contract GANNode is ERC721URIStorage, ERC721Enumerable, Ownable, IErrors
             tokens[i] = tokenOfOwnerByIndex(owner, i);
         }
         return tokens;
+    }
+
+    function batchTransfer(uint120 quantity,uint120[] memory tokenId, address receiver) public 
+    {
+        if(!_batchTransfer) revert notYetAvailable();
+        if(quantity != tokenId.length) revert incorrectArraySize();
+        for(uint i=0; i < quantity; i++) 
+        {
+            if(ownerOf(tokenId[i]) != msg.sender) revert NotTheTokenOwner();
+            transferFrom(msg.sender, receiver, tokenId[i]);
+        }
+        emit batchTransfered(msg.sender, receiver, quantity, block.timestamp);
+    }
+
+    function setLockStatus(bool status, uint lock) public onlyOwner
+    {
+        if(lock == 0)
+        {
+            _batchTransfer = status; 
+        }
+        else
+        {
+            revert wrongFunctionType();
+        }
+
+        emit setLockStatusAt(lock, status, block.timestamp);
     }
 }
