@@ -43,3 +43,6 @@ deploy-gbay:
 
 deploy-copperx: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/copperx_deploy.js --network gpu
+
+deploy-credits: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/credits_deploy.js --network gpu
