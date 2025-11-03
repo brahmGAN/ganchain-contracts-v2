@@ -17,9 +17,9 @@ contract credits is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradea
     event creditsPurchased
     (
         address indexed user,
-        uint120 indexedamount,
+        uint120 indexed amount,
         string indexed id,
-        uint indexed timestamp
+        uint  timestamp
     );
 
     event setLockStatusAt
@@ -45,9 +45,9 @@ contract credits is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradea
         _fundsHandler = fundsHandler; 
     }
 
-    receive() external payable {}
+    //receive() external payable {}
 
-    function buyCredits(uint120 amount,string memory id) public payable
+    function buyCredits(uint120 amount,string memory id) public payable nonReentrant 
     {
         if(!_buyCredits) revert notYetAvailable();
         if(amount < 1 || uint120(msg.value) != amount) revert incorrectAmount();
@@ -55,7 +55,7 @@ contract credits is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradea
         _idStatus[id] = uint120(msg.value); 
         (bool success,) = payable(_fundsHandler).call{value:msg.value}("");
         if(!success) revert TransferFailed();
-        emit creditsPurchased(msg.sender, amount, id, block.timestamp);
+        emit creditsPurchased(msg.sender, uint120(msg.value), id, block.timestamp);
     }
 
     function setFundsHandler(address fundsHandler) public onlyOwner 
