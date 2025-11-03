@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 const { expect, use } = require("chai");
 
 describe("USDTVault", () => {
@@ -6,6 +6,8 @@ describe("USDTVault", () => {
   let orderBookHandler;
   let user1;
   let user2;
+  let totalDepositedBeforeUpgrade;
+  let v2UsdtVaultProxy; 
   before(async () => {
     [owner, orderBookHandler, user1, user2] = await ethers.getSigners();
     mockUsdtFactory = await ethers.getContractFactory("MockUSDT");
@@ -70,6 +72,39 @@ describe("USDTVault", () => {
       console.log(
         "user2 balance after: " + (await mockUsdt.balanceOf(user2.address))
       );
+    });
+  });
+
+  describe("Contract upgrade:",()=>{
+    it("Should upgrade to the new USDT vault contract:",async()=>{
+      totalDepositedBeforeUpgrade = await usdtVaultProxy.totalDeposited(); 
+      const v2UsdtVaultFactory = await ethers.getContractFactory("v2USDTVault");
+      v2UsdtVaultProxy = await upgrades.upgradeProxy(
+        usdtVaultProxy.target, 
+        v2UsdtVaultFactory
+      );
+      await expect(await v2UsdtVaultProxy.totalDeposited()).to.equals(totalDepositedBeforeUpgrade);
+    });
+  });
+
+  describe("Withdraw after upgrading:",()=>{
+    it("Should fail if anyone other than orderBookHandler tries to withdraw",async()=>{
+      await v2UsdtVaultProxy.connect(owner).setLockStatus(true, 2);
+      await expect(
+        v2UsdtVaultProxy.connect(user1).withdrawUsdtFor(user1.address, 1 * 10 ** 6)
+      ).to.be.revertedWith("USDTVault: Only Orderbook can call this");
+    });
+
+    it("Should let orderbook handler withdraw on user1's behalf",async()=>{
+      await mockUsdt.connect(owner).transfer(v2UsdtVaultProxy.target, 10 * 10 ** 6);
+      await v2UsdtVaultProxy.connect(owner).setLockStatus(true, 2);
+      const before = await mockUsdt.balanceOf(user1.address);
+      await v2UsdtVaultProxy
+        .connect(orderBookHandler)
+        .withdrawUsdtFor(user1.address, 5 * 10 ** 6);
+      const after = await mockUsdt.balanceOf(user1.address);
+      const delta = ethers.parseUnits("5", 6);
+      expect(after).to.equal(before + delta);
     });
   });
 });

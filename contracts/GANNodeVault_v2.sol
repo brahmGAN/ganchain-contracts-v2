@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 import "./interfaces/IErrors.sol"; 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors
+contract v2GANNodeVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors
 {
 
     IERC721 public _ganNode; 

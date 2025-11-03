@@ -11,7 +11,7 @@ import "./interfaces/IErrors.sol";
  * @dev Enhanced vault contract for native GPU tokens with cross-user trading support
  * Handles deposits, locking, unlocking, withdrawals, and cross-user balance transfers
  */
-contract GPUVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors 
+contract v2GPUVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors 
 {
     mapping(address => uint120) public unlockedBalances;
 

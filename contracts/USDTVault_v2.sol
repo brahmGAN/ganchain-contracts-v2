@@ -13,7 +13,7 @@ import "./interfaces/IErrors.sol";
  * @dev Enhanced vault contract for USDT with cross-user trading support
  * Handles deposits, locking, unlocking, withdrawals, and cross-user balance transfers
  */
-contract USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors {
+contract v2USDTVault is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IErrors {
 
     using SafeERC20 for IERC20;
     
