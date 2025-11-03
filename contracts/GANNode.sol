@@ -4,9 +4,10 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./interfaces/IErrors.sol"; 
 
-contract GANNode is ERC721URIStorage, ERC721Enumerable, Ownable, IErrors
+contract GANNode is ERC721URIStorage, ERC721Enumerable, Ownable, Pausable, IErrors
 {
     event ganNodeMinted(
         address to,
@@ -35,10 +36,16 @@ contract GANNode is ERC721URIStorage, ERC721Enumerable, Ownable, IErrors
 
     bool public _batchTransfer; 
 
-    constructor() ERC721("GAN-Node","GN") Ownable(msg.sender) {}
+    constructor() ERC721("GAN-Node","GN") Ownable(msg.sender) Pausable() {}
 
     function _update(address to, uint256 tokenId, address auth) internal override(ERC721,ERC721Enumerable) returns (address)
     {
+        if (paused()) {
+            address from = _ownerOf(tokenId);
+            if (from != address(0) && to != address(0)) {
+                revert("Pausable: paused");
+            }
+        }
         return super._update(to, tokenId, auth);
     }
 
@@ -118,5 +125,13 @@ contract GANNode is ERC721URIStorage, ERC721Enumerable, Ownable, IErrors
         }
 
         emit setLockStatusAt(lock, status, block.timestamp);
+    }
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
     }
 }
