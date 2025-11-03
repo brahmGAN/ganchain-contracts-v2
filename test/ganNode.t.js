@@ -70,4 +70,64 @@ describe("GANNode ERC721 Enumerable", () => {
       expect(user3Tokens[1]).to.equal(6n);
     });
   });
+
+  describe("batchTransfer", () => {
+    it("should revert when feature is locked", async () => {
+      // ensure lock is off (default false)
+      await expect(
+        ganNode.connect(user1).batchTransfer(2, [1, 4], user2.address)
+      ).to.be.revertedWithCustomError(ganNode, "notYetAvailable");
+    });
+
+    it("should revert on array size mismatch", async () => {
+      await ganNode.connect(owner).setLockStatus(true, 0);
+      await expect(
+        ganNode.connect(user1).batchTransfer(2, [1], user2.address)
+      ).to.be.revertedWithCustomError(ganNode, "incorrectArraySize");
+    });
+
+    it("should revert if sender is not the token owner", async () => {
+      // user1 owns [1,4,7]; try to move token 3 (owned by user2)
+      await expect(
+        ganNode.connect(user1).batchTransfer(1, [3], user2.address)
+      ).to.be.revertedWithCustomError(ganNode, "NotTheTokenOwner");
+    });
+
+    it("should transfer multiple tokens when unlocked", async () => {
+      const beforeUser1 = await ganNode.tokensOfOwner(user1.address);
+      const beforeUser2 = await ganNode.tokensOfOwner(user2.address);
+      // move tokens 1 and 4 from user1 to user2
+      await ganNode.connect(user1).batchTransfer(2, [1, 4], user2.address);
+      const afterUser1 = await ganNode.tokensOfOwner(user1.address);
+      const afterUser2 = await ganNode.tokensOfOwner(user2.address);
+      expect(afterUser1.length).to.equal(beforeUser1.length - 2);
+      expect(afterUser2.length).to.equal(beforeUser2.length + 2);
+      expect(afterUser2).to.include(1n);
+      expect(afterUser2).to.include(4n);
+    });
+
+    it("should block transfers when paused", async () => {
+      // non-owner cannot pause
+      await expect(ganNode.connect(user1).pause()).to.be.revertedWithCustomError(
+        ganNode,
+        "OwnableUnauthorizedAccount"
+      );
+      // pause as owner
+      await ganNode.connect(owner).pause();
+      await expect(
+        ganNode.connect(user1).batchTransfer(1, [7], user3.address)
+      ).to.be.revertedWith("Pausable: paused");
+      await ganNode.connect(owner).unpause();
+      
+      // verify transfers work again after unpause
+      const beforeUser1 = await ganNode.tokensOfOwner(user1.address);
+      const beforeUser3 = await ganNode.tokensOfOwner(user3.address);
+      await ganNode.connect(user1).batchTransfer(1, [7], user3.address);
+      const afterUser1 = await ganNode.tokensOfOwner(user1.address);
+      const afterUser3 = await ganNode.tokensOfOwner(user3.address);
+      expect(afterUser1.length).to.equal(beforeUser1.length - 1);
+      expect(afterUser3.length).to.equal(beforeUser3.length + 1);
+      expect(afterUser3).to.include(7n);
+    });
+  });
 });
