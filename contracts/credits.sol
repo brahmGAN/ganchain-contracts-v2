@@ -16,17 +16,17 @@ contract credits is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradea
 
     event creditsPurchased
     (
-        address indexed user,
-        uint120 indexed amount,
-        string indexed id,
+        address user,
+        uint120 amount,
+        string id,
         uint  timestamp
     );
 
     event setLockStatusAt
     (
-        uint indexed lock, 
-        bool indexed status, 
-        uint indexed timestamp 
+        uint lock, 
+        bool status, 
+        uint timestamp 
     );
 
     event fundsHandlerSet 

@@ -45,6 +45,49 @@ describe("Buy Credits", () => {
       ).to.be.equals(fundsHandlerBalanceBefore + ethers.parseEther("69"));
     });
 
+    it("Should emit event with matching ids for multiple purchases", async () => {
+      const purchaseIds = [
+        "QUbL41Bi8LKMaWh",
+        "U2w3PehoUcbiwVk",
+        "i1A131j5y4zeYHr",
+        "ytKAgxEgfWsZM7z",
+        "kWRri8Zqo7CEoI1",
+      ];
+      const proxyAddress = await creditsProxy.getAddress();
+
+      for (let index = 0; index < purchaseIds.length; index++) {
+        const id = purchaseIds[index];
+        const amount = ethers.parseEther((index + 1).toString());
+
+        const tx = await creditsProxy
+          .connect(user1)
+          .buyCredits(amount, id, { value: amount });
+        const receipt = await tx.wait();
+
+        const parsedEvent = receipt.logs
+          .filter((log) => log.address.toLowerCase() === proxyAddress.toLowerCase())
+          .map((log) => {
+            try {
+              return creditsProxy.interface.parseLog(log);
+            } catch (error) {
+              return null;
+            }
+          })
+          .find(
+            (event) => event && event.name === "creditsPurchased"
+          );
+
+        expect(parsedEvent, `creditsPurchased event not found for id: ${id}`).to
+          .not.be.null;
+        expect(parsedEvent.args.user).to.equal(user1.address);
+        expect(parsedEvent.args.amount).to.equal(amount);
+        const loggedId = parsedEvent.args.id;
+        console.log("creditsPurchased => param id:", id, "| event log id:", loggedId);
+        // Verifies that the emitted id string matches the purchase parameter.
+        expect(loggedId).to.equal(id);
+      }
+    });
+
     it("Should revert when buying with amount mismatch", async () => {
       await expect(
         creditsProxy
