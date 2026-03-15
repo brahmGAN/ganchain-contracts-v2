@@ -46,3 +46,6 @@ deploy-copperx:
 
 deploy-credits: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/credits_deploy.js --network gpu
+
+deploy-validatorRewards: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/v1ValidatorRewards_deploy.js --network gpu
