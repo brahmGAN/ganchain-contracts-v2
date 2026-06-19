@@ -158,4 +158,12 @@ interface IErrors
   error UnauthorizedFundsHandler();
 
   error IdAlreadyUsed();
+
+  error InsufficientBalance();
+
+  error ExceedesMaxDealLimit();
+
+  error MinimumDeposit10k();
+  
+  error DealOver();
 }

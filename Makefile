@@ -49,3 +49,6 @@ deploy-credits:
 
 deploy-validatorRewards: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/v1ValidatorRewards_deploy.js --network gpu
+
+deploy-rwa-ganchain: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/rwa_deploy.js --network gpu

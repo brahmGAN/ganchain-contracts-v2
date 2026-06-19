@@ -30,6 +30,10 @@ module.exports = {
       url: `${process.env.GPU_RPC}`,
       accounts: [`${DEPLOYER_PRIVATE_KEY}`],
     },
+    devnetGpu: {
+      url: `${process.env.DEVNET_GPU_RPC}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
   },
   gasReporter: {
     enabled: true,
