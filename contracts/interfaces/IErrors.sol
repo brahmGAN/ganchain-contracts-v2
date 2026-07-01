@@ -163,7 +163,7 @@ interface IErrors
 
   error ExceedesMaxDealLimit();
 
-  error MinimumDeposit10k();
+  error MinimumDeposit1k();
   
   error DealOver();
 }

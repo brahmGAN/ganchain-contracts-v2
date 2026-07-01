@@ -52,3 +52,6 @@ deploy-validatorRewards:
 
 deploy-rwa-ganchain: 
 	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/rwa_deploy.js --network gpu
+
+deploy-rwa-hyperEvm: 
+	npx hardhat run /home/blackbeard/gpu/ganchain-contracts-v2/ignition/modules/rwa_deploy.js --network hyperEvm

@@ -34,6 +34,10 @@ module.exports = {
       url: `${process.env.DEVNET_GPU_RPC}`,
       accounts: [`${DEPLOYER_PRIVATE_KEY}`],
     },
+    hyperEvm: {
+      url: `${process.env.HYPER_EVM_RPC}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
   },
   gasReporter: {
     enabled: true,

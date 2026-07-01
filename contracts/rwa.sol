@@ -22,9 +22,13 @@ contract rwa is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,
 
     mapping(address => uint) public _depositAmount;  
 
-    uint public _amountRaised; 
+    uint public _totalDealAmountRaised; 
 
-    bool public _dealOver; 
+    uint public _currentDealAmountRaised; 
+
+    bool public _dealOver;  
+
+    uint public _batchNumber; 
 
     using SafeERC20 for IERC20;
     IERC20 public _usdcToken; 
@@ -47,6 +51,24 @@ contract rwa is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,
         uint timestamp
     );
 
+    event DepositStatusSet
+    (
+        bool status,
+        uint timestamp
+    );
+
+    event DealExecutorSet
+    (
+        address dealExecutor,
+        uint timestamp
+    );
+
+    event RefundHandlerSet
+    (
+        address refundHandler,
+        uint timestamp
+    );
+
     modifier onlyRefundHandler  
     {
         require(msg.sender == _refundHandler, "Unauthorized refund handler");
@@ -64,24 +86,26 @@ contract rwa is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,
         _refundHandler = refundHandler; 
         _dealExecutor = dealExecutor; 
         _dealAmount = dealAmount; 
+        _deposit = true; 
+        _batchNumber = 1;
     }
 
     receive() external payable {}
 
     function depositUsd(uint amount) public nonReentrant
     {
-        //if(!_deposit) revert notYetAvailable(); 
-        if(amount < 10000) revert MinimumDeposit10k();
+        if(!_deposit) revert notYetAvailable(); 
+        if(amount < 1000000000) revert MinimumDeposit1k();
         if(_usdcToken.balanceOf(msg.sender) < amount) revert InsufficientBalance();
         if(_usdcToken.allowance(msg.sender, address(this)) < amount) revert ContractIsNotApproved();
-        if(_amountRaised > _dealAmount) revert ExceedesMaxDealLimit();
-        if(_dealOver) revert DealOver();
+        if((_currentDealAmountRaised + amount) > _dealAmount) revert ExceedesMaxDealLimit();
         if(_depositAmount[msg.sender] == 0)
         {
             _liquidityProviders.push(msg.sender);
         }
         _depositAmount[msg.sender] += amount;  
-        _amountRaised += amount; 
+        _totalDealAmountRaised += amount;  
+        _currentDealAmountRaised += amount;  
         _usdcToken.safeTransferFrom(msg.sender,_dealExecutor,amount);
         emit usdcDeposited(msg.sender, amount, block.timestamp);
     } 
@@ -90,12 +114,29 @@ contract rwa is OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable,
     function resetDealAmount(uint newDealAmount) public onlyOwner
     {
         _dealAmount = newDealAmount;
+        _currentDealAmountRaised = 0;
+        _batchNumber++;
         emit DealAmountReset(newDealAmount, block.timestamp);
     }
 
-    function closeDeal() public onlyOwner
+    //function to set the _deposit status
+    function setDepositStatus(bool status) public onlyOwner
     {
-        _dealOver = true;
-        emit DealClosed(block.timestamp);
+        _deposit = status;
+        emit DepositStatusSet(status, block.timestamp);
+    }
+
+    //function to set _dealExecutor address
+    function setDealExecutor(address dealExecutor) public onlyOwner
+    {
+        _dealExecutor = dealExecutor;
+        emit DealExecutorSet(dealExecutor, block.timestamp);
+    }
+
+    //function to set _refundHandler address
+    function setRefundHandler(address refundHandler) public onlyOwner
+    {
+        _refundHandler = refundHandler;
+        emit RefundHandlerSet(refundHandler, block.timestamp);
     }
 } 
