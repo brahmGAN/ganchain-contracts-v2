@@ -1,6 +1,45 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@openzeppelin/hardhat-upgrades");
+require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
+
+// Using a hardcoded solution to avoid GitHub actions issues
+const DEPLOYER_PRIVATE_KEY =
+  process.env.SHARED_DEPLOYER ||
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
+
 module.exports = {
-  solidity: "0.8.28",
+  solidity: {
+    version: "0.8.28",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 10,
+      },
+      viaIR: true,
+    },
+  },
+  allowUnlimitedContractSize: true,
+  networks: {
+    sepolia: {
+      url: `${process.env.SEPOLIA_RPC_URL}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
+    gpu: {
+      url: `${process.env.GPU_RPC}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
+    devnetGpu: {
+      url: `${process.env.DEVNET_GPU_RPC}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
+    hyperEvm: {
+      url: `${process.env.HYPER_EVM_RPC}`,
+      accounts: [`${DEPLOYER_PRIVATE_KEY}`],
+    },
+  },
+  gasReporter: {
+    enabled: true,
+  },
 };

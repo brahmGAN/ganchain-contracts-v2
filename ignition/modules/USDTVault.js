@@ -1,0 +1,30 @@
+const { ethers } = require("hardhat");
+require("dotenv").config();
+
+async function main() {
+  const shared_deployed_public = "0x898345e0b70D7fcC8e7227B444DEc90b1154DFa5";
+  const orderBookHandlerRandall = "0x9aA81e452e764791B72dc3aE97F8Ffb32324E9A8";
+
+  const mockUsdtFactory = await ethers.getContractFactory("MockUSDT");
+  const mockUsdt = await mockUsdtFactory.deploy(shared_deployed_public);
+
+  const usdtVaultFactory = await ethers.getContractFactory("USDTVault");
+  const usdtVaultProxy = await upgrades.deployProxy(
+    usdtVaultFactory,
+    [mockUsdt.target, orderBookHandlerRandall],
+    {
+      initializer: "initialize",
+      gasPrice: ethers.parseUnits("30", "gwei"),
+      // timeout: 180000, // 3 minutes in milliseconds
+      // pollingInterval: 5000
+    }
+  );
+
+  console.log("mock USDT deployed at:", mockUsdt.target);
+  console.log("USDTVault deployed at:", usdtVaultProxy.target);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
