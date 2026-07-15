@@ -6,6 +6,7 @@ on:
             - main
             - develop 
             - subnet
+            - orderbook
     pull_request:
 
 jobs:
